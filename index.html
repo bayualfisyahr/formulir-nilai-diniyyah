@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Input Nilai Harian - SDIT Al Maahyrah</title>
+    <link
+      rel="stylesheet"
+      href="style.css" />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com" />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Input Nilai Harian</h1>
+        <p>SDIT Al Maahyrah</p>
+      </header>
+      <main>
+        <form id="formInputNilai">
+          <fieldset>
+            <legend>Data Siswa</legend>
+            <div class="form-group">
+              <label for="kelasSelect">Kelas</label>
+              <select
+                id="kelasSelect"
+                name="kelas"
+                required>
+                <option
+                  value=""
+                  disabled
+                  selected>
+                  Pilih Kelas...
+                </option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="siswaSelect">Nama Siswa</label>
+              <select
+                id="siswaSelect"
+                name="siswa"
+                required
+                disabled>
+                <option
+                  value=""
+                  selected>
+                  Pilih kelas terlebih dahulu...
+                </option>
+              </select>
+              <div
+                id="siswaLoader"
+                class="loader"
+                style="display: none"></div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Penilaian Bacaan</legend>
+            <div class="form-group">
+              <label for="jenjangSelect">Jenjang Bacaan</label>
+              <select
+                id="jenjangSelect"
+                name="jenjangBacaan"
+                required>
+                <option
+                  value=""
+                  disabled
+                  selected>
+                  Pilih Jenjang...
+                </option>
+                <option value="Al Qur'an">Al Qur'an</option>
+                <option value="Iqro 6">Iqro 6</option>
+                <option value="Iqro 5">Iqro 5</option>
+                <option value="Iqro 4">Iqro 4</option>
+                <option value="Iqro 3">Iqro 3</option>
+                <option value="Iqro 2">Iqro 2</option>
+                <option value="Iqro 1">Iqro 1</option>
+              </select>
+            </div>
+            <div id="dynamicBacaanFields"></div>
+            <div class="form-group">
+              <label for="nilaiBacaanSelect">Nilai Bacaan</label>
+              <select
+                id="nilaiBacaanSelect"
+                name="nilaiBacaan"
+                required>
+                <option
+                  value=""
+                  disabled
+                  selected>
+                  Pilih Nilai...
+                </option>
+                <option value="A">A (Sangat Baik)</option>
+                <option value="B">B (Baik)</option>
+                <option value="C">C (Perlu Ditingkatkan)</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Penilaian Hafalan</legend>
+            <div class="form-group">
+              <label for="hafalanSuratSelect">Surat Hafalan</label>
+              <select
+                id="hafalanSuratSelect"
+                name="suratHafalan"
+                required>
+                <option
+                  value=""
+                  disabled
+                  selected>
+                  Memuat surat...
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="hafalanAyatInput">Ayat</label>
+              <input
+                type="text"
+                id="hafalanAyatInput"
+                name="ayatHafalan"
+                placeholder="Contoh: 1-7"
+                required />
+            </div>
+            <div class="form-group">
+              <label for="nilaiHafalanSelect">Nilai Hafalan</label>
+              <select
+                id="nilaiHafalanSelect"
+                name="nilaiHafalan"
+                required>
+                <option
+                  value=""
+                  disabled
+                  selected>
+                  Pilih Nilai...
+                </option>
+                <option value="A">A (Sangat Baik)</option>
+                <option value="B">B (Baik)</option>
+                <option value="C">C (Perlu Ditingkatkan)</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Catatan Tambahan</legend>
+            <div class="form-group">
+              <label for="catatanTextarea">Catatan (Opsional)</label>
+              <textarea
+                id="catatanTextarea"
+                name="catatanTambahan"
+                rows="4"
+                placeholder="Jika ada hal spesifik yang perlu disampaikan..."></textarea>
+            </div>
+          </fieldset>
+
+          <button
+            type="submit"
+            id="submitButton">
+            <span class="button-text">Kirim Laporan</span>
+            <div
+              id="submitLoader"
+              class="loader-small"
+              style="display: none"></div>
+          </button>
+          <div id="statusMessage"></div>
+        </form>
+      </main>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
