@@ -4,7 +4,7 @@
 // Ganti dengan URL Web App BARU dari Google Apps Script yang akan Anda deploy
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAjRPJTUeXO2DoqCxq3BnRixzslhdP1V-Ku7nuS-zGWYIrGCle1wdP0z3_ETAH7Y3/exec'; 
 
-const N8N_WEBHOOK_URL = 'PASTE_URL_N8N_WEBHOOK_AND_HAPUS_TANDA_PETIK_INI';
+const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
 
 // [OPTIMASI] Variabel untuk menyimpan cache data siswa
