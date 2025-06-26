@@ -159,7 +159,7 @@ jenjangSelect.addEventListener('change', (e) => {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31" required>
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31" required>
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
