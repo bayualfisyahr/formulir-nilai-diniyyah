@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App dari Google Apps Script yang Anda deploy di Langkah 2
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBB-NZXL9bdQTIiMaCqSwWJWJy8HeLUqkiPnP-MhSDoxygRowKxPc-bZurlkoYO_hG/exec';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw231_Xe5MYdsMo_2zLQEEhrQPj5xpJ3yUYKBcHpkkWp8_0U2Tx9DWmvL9Nw1knbbKW/exec';
 
 // Ganti dengan URL Webhook dari n8n yang akan Anda dapatkan di Langkah 5
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
@@ -64,7 +64,7 @@ kelasSelect.addEventListener("change", async (e) => {
   siswaLoader.style.display = "block";
   siswaSelect.innerHTML = `<option value="">Memuat siswa...</option>`;
 
-  const siswaData = await fetchData("siswa", { kelas: selectedKelas });
+  const siswaData = await fetchData("Siswa", { kelas: selectedKelas });
 
   siswaLoader.style.display = "none";
   if (siswaData && siswaData.length > 0) {
