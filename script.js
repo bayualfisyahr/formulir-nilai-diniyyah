@@ -5,7 +5,7 @@
 const GOOGLE_APPS_SCRIPT_URL = "PASTE_URL_APPS_SCRIPT_AND_HAPUS_TANDA_PETIK_INI";
 
 // Ganti dengan URL Webhook dari n8n yang akan Anda dapatkan di Langkah 5
-const N8N_WEBHOOK_URL = "PASTE_URL_N8N_WEBHOOK_AND_HAPUS_TANDA_PETIK_INI";
+const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
 
 // Elemen DOM
