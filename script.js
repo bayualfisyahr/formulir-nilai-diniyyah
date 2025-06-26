@@ -120,11 +120,11 @@ jenjangSelect.addEventListener('change', (e) => {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31" required>
+                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1-31" min="1" max="31" required>
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" id="barisInput" name="subDetail" placeholder="Contoh: 1-5" required>
+                <input type="number" id="barisInput" name="subDetail" placeholder="1-5" min="1" max="8" required>
             </div>
         `;
     } else if (selectedJenjang === "Al Qur'an") {
@@ -137,7 +137,7 @@ jenjangSelect.addEventListener('change', (e) => {
             </div>
             <div class="form-group">
                 <label for="ayatBacaanInput">Ayat</label>
-                <input type="text" id="ayatBacaanInput" name="subDetail" placeholder="Contoh: 1-10" required>
+                <input type="number" id="ayatBacaanInput" name="subDetail" placeholder="1-10" required>
             </div>
         `;
         const suratBacaanSelect = document.getElementById('suratBacaanSelect');
