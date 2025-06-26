@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script yang akan Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_NEW_APPS_SCRIPT_URL_HERE'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAjRPJTUeXO2DoqCxq3BnRixzslhdP1V-Ku7nuS-zGWYIrGCle1wdP0z3_ETAH7Y3/exec'; 
 
 const N8N_WEBHOOK_URL = 'PASTE_URL_N8N_WEBHOOK_AND_HAPUS_TANDA_PETIK_INI';
 // =================================================================================
