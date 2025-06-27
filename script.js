@@ -156,11 +156,11 @@ jenjangSelect.addEventListener('change', (e) => {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31">
+                <input type="number" id="halamanInput" name="detailBacaan" placeholder="Contoh: 7" min="1" max="31">
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-5">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-4 atau 1-8">
             </div>
         `;
     } else if (selectedJenjang === "Al Qur'an") {
