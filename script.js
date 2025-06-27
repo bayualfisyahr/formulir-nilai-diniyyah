@@ -5,7 +5,7 @@
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJvRR3b651acjNrMmAgtvJHIO19NMVqM4TjWAZxIGtkJUEOkHVcLQtVCyDL5kS4d6i/exec'; 
 
 // Ganti dengan URL Webhook n8n Anda yang sudah berjalan
-const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
+const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
 
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
