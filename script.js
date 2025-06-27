@@ -6,7 +6,6 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_8ctCX
 
 // Ganti dengan URL Webhook n8n Anda (seharusnya sudah ada)
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
-// =================================================================================
 
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
@@ -32,9 +31,6 @@ const statusMessage = document.getElementById('statusMessage');
 
 /**
  * Mengambil data dari Google Apps Script.
- * @param {string} request - Tipe data yang diminta ('surat', 'allSiswa', 'refCatatan').
- * @param {object} params - Parameter tambahan (misal: {kelas: '1'}).
- * @returns {Promise<Array|null>} Data yang diminta atau null jika gagal.
  */
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
@@ -58,10 +54,6 @@ async function fetchData(request, params = {}) {
 
 /**
  * Mengisi elemen <select> dengan data.
- * @param {HTMLElement} selectElement - Elemen dropdown yang akan diisi.
- * @param {Array} data - Array data untuk mengisi dropdown.
- * @param {string} valueKey - Kunci untuk nilai <option>.
- * @param {string} textKey - Kunci untuk teks <option>.
  */
 function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     selectElement.innerHTML = `<option value="" disabled selected>Pilih...</option>`;
@@ -83,23 +75,24 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
 }
 
 /**
- * Membuat catatan otomatis berdasarkan nilai bacaan dan hafalan.
+ * [PERUBAHAN] Membuat atau menghapus catatan otomatis.
  */
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
 
+    // Hanya berjalan jika KEDUA nilai sudah dipilih dan cache sudah siap
     if (nilaiBacaan && nilaiHafalan && catatanCache) {
         const kode = `${nilaiBacaan}-${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
 
         if (catatanObj) {
-            const catatanManual = catatanTextarea.value.split(" | Tambahan: ")[1] || '';
             catatanTextarea.value = catatanObj.deskripsi;
-            if (catatanManual) {
-                catatanTextarea.value += ` | Tambahan: ${catatanManual}`;
-            }
         }
+    } else {
+        // Jika salah satu atau kedua nilai kosong, kosongkan textarea
+        // agar guru bisa mengisi manual.
+        catatanTextarea.value = '';
     }
 }
 
@@ -150,7 +143,8 @@ kelasSelect.addEventListener('change', (e) => {
     siswaSelect.disabled = false;
 });
 
-// Menampilkan input dinamis (surat/ayat atau halaman/baris) berdasarkan jenjang.
+// Menampilkan input dinamis berdasarkan jenjang.
+// [PERUBAHAN] Atribut 'required' dihapus dari input dinamis.
 jenjangSelect.addEventListener('change', (e) => {
     const selectedJenjang = e.target.value;
     dynamicBacaanFields.innerHTML = ''; 
@@ -159,24 +153,24 @@ jenjangSelect.addEventListener('change', (e) => {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31" required>
+                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31">
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-5" required>
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-5">
             </div>
         `;
     } else if (selectedJenjang === "Al Qur'an") {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="suratBacaanSelect">Surat</label>
-                <select id="suratBacaanSelect" name="detailBacaan" required>
+                <select id="suratBacaanSelect" name="detailBacaan">
                     <option value="" disabled selected>Pilih Surat...</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="ayatBacaanInput">Ayat</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" placeholder="Contoh: 1-10" required>
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" placeholder="Contoh: 1-10">
             </div>
         `;
         const suratBacaanSelect = document.getElementById('suratBacaanSelect');
@@ -214,9 +208,11 @@ form.addEventListener('submit', async (e) => {
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
         form.reset();
+        // Reset tampilan setelah submit
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
+        catatanTextarea.value = ''; // Pastikan catatan kosong
     } catch (error) {
         console.error('Submit error:', error);
         statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
