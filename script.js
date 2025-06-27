@@ -1,15 +1,18 @@
 // =================================================================================
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
-// Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_8ctCXEfC2VzH1eeGmOH4Pm_ZGp_e1fCB7-I3E6-vqDWJDbv2vnXZ67WD_2FKzzOM/exec'; 
+// Ganti dengan URL Web App BARU dari Google Apps Script yang sudah Anda deploy
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJvRR3b651acjNrMmAgtvJHIO19NMVqM4TjWAZxIGtkJUEOkHVcLQtVCyDL5kS4d6i/exec'; 
 
-// Ganti dengan URL Webhook n8n Anda (seharusnya sudah ada)
+// Ganti dengan URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
+// =================================================================================
 
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
 let catatanCache = null;
+let hafalanSuratCache = null;
+let bacaanSuratCache = null;
 
 // ==================== DEFINISI ELEMEN DOM ====================
 const form = document.getElementById('formInputNilai');
@@ -31,13 +34,12 @@ const statusMessage = document.getElementById('statusMessage');
 
 /**
  * Mengambil data dari Google Apps Script.
+ * @param {string} request - Tipe data yang diminta.
+ * @returns {Promise<Array|null>} Data yang diminta atau null jika gagal.
  */
-async function fetchData(request, params = {}) {
+async function fetchData(request) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
-    for (const key in params) {
-        url.searchParams.append(key, params[key]);
-    }
     try {
         const response = await fetch(url);
         const result = await response.json();
@@ -54,6 +56,10 @@ async function fetchData(request, params = {}) {
 
 /**
  * Mengisi elemen <select> dengan data.
+ * @param {HTMLElement} selectElement - Elemen dropdown yang akan diisi.
+ * @param {Array} data - Array data untuk mengisi dropdown.
+ * @param {string} valueKey - Kunci untuk nilai <option>.
+ * @param {string} textKey - Kunci untuk teks <option>.
  */
 function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     selectElement.innerHTML = `<option value="" disabled selected>Pilih...</option>`;
@@ -75,13 +81,12 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
 }
 
 /**
- * [PERUBAHAN] Membuat atau menghapus catatan otomatis.
+ * Membuat atau menghapus catatan otomatis berdasarkan nilai.
  */
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
 
-    // Hanya berjalan jika KEDUA nilai sudah dipilih dan cache sudah siap
     if (nilaiBacaan && nilaiHafalan && catatanCache) {
         const kode = `${nilaiBacaan}-${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
@@ -90,8 +95,6 @@ function generateCatatanOtomatis() {
             catatanTextarea.value = catatanObj.deskripsi;
         }
     } else {
-        // Jika salah satu atau kedua nilai kosong, kosongkan textarea
-        // agar guru bisa mengisi manual.
         catatanTextarea.value = '';
     }
 }
@@ -106,17 +109,22 @@ async function initializeForm() {
     placeholderAwal.textContent = 'Memuat data awal...';
     kelasSelect.add(placeholderAwal, 1);
 
-    const [suratData, siswaData, dataCatatan] = await Promise.all([
-        fetchData('surat'),
+    const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
+        fetchData('hafalanSurat'),
+        fetchData('bacaanSurat'),
         fetchData('allSiswa'),
         fetchData('refCatatan')
     ]);
 
-    if (suratData) populateSelect(hafalanSuratSelect, suratData);
+    if (hafalanData) {
+        hafalanSuratCache = hafalanData;
+        populateSelect(hafalanSuratSelect, hafalanSuratCache);
+    }
+    if (bacaanData) bacaanSuratCache = bacaanData;
     if (siswaData) siswaCache = siswaData;
     if (dataCatatan) catatanCache = dataCatatan;
 
-    if (siswaCache && catatanCache) {
+    if (siswaCache && catatanCache && hafalanSuratCache && bacaanSuratCache) {
         kelasSelect.disabled = false;
         kelasSelect.remove(1);
         console.log('Semua cache berhasil dimuat.');
@@ -127,14 +135,11 @@ async function initializeForm() {
 
 // ==================== EVENT LISTENERS ====================
 
-// Menjalankan inisialisasi saat konten halaman selesai dimuat.
 document.addEventListener('DOMContentLoaded', initializeForm);
 
-// Menjalankan fungsi generateCatatanOtomatis setiap kali nilai diubah.
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
 
-// Mengisi dropdown siswa berdasarkan kelas yang dipilih (menggunakan cache).
 kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
     if (!selectedKelas || !siswaCache) return;
@@ -143,21 +148,19 @@ kelasSelect.addEventListener('change', (e) => {
     siswaSelect.disabled = false;
 });
 
-// Menampilkan input dinamis berdasarkan jenjang.
-// [PERUBAHAN] Atribut 'required' dihapus dari input dinamis.
 jenjangSelect.addEventListener('change', (e) => {
     const selectedJenjang = e.target.value;
     dynamicBacaanFields.innerHTML = ''; 
 
-    if (selectedJenjang.startsWith('Iqro')) {
+    if (selectedJenjang && selectedJenjang.startsWith('Iqro')) {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" placeholder="Contoh: 5" min="1" max="31">
+                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31">
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-4 atau 1-8">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-5">
             </div>
         `;
     } else if (selectedJenjang === "Al Qur'an") {
@@ -174,12 +177,12 @@ jenjangSelect.addEventListener('change', (e) => {
             </div>
         `;
         const suratBacaanSelect = document.getElementById('suratBacaanSelect');
-        suratBacaanSelect.innerHTML = hafalanSuratSelect.innerHTML;
-        suratBacaanSelect.querySelector('option[disabled]').textContent = "Pilih Surat...";
+        if(bacaanSuratCache) {
+            populateSelect(suratBacaanSelect, bacaanSuratCache);
+        }
     }
 });
 
-// Mengirim data ke n8n saat form disubmit.
 form.addEventListener('submit', async (e) => {
     e.preventDefault(); 
     submitButton.disabled = true;
@@ -208,11 +211,10 @@ form.addEventListener('submit', async (e) => {
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
         form.reset();
-        // Reset tampilan setelah submit
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
-        catatanTextarea.value = ''; // Pastikan catatan kosong
+        catatanTextarea.value = '';
     } catch (error) {
         console.error('Submit error:', error);
         statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
