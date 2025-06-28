@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script yang sudah Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEsB2cpYQVPd3wkqoV7nVOIf8u8lDNEITVOBJMDH8j3lBeh0lf_I07YbX85T8WWq_b/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREINwIoVYaER4diRsOVAX9QbRBqusHJMKgqzpPSwtwMh1JnIS3Hb0xTTiO-jV6a/exec'; 
 
 // Ganti dengan URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
@@ -18,12 +18,13 @@ let bacaanSuratCache = null;
 const form = document.getElementById('formInputNilai');
 const kelasSelect = document.getElementById('kelasSelect');
 const siswaSelect = document.getElementById('siswaSelect');
-const siswaLoader = document.getElementById('siswaLoader');
+// ... dan semua elemen lain yang sudah Anda definisikan sebelumnya ...
 const jenjangSelect = document.getElementById('jenjangSelect');
 const dynamicBacaanFields = document.getElementById('dynamicBacaanFields');
 const nilaiBacaanSelect = document.getElementById('nilaiBacaanSelect');
 const nilaiHafalanSelect = document.getElementById('nilaiHafalanSelect');
 const hafalanSuratSelect = document.getElementById('hafalanSuratSelect');
+const hafalanAyatInput = document.getElementById('hafalanAyatInput');
 const catatanTextarea = document.getElementById('catatanTextarea');
 const submitButton = document.getElementById('submitButton');
 const buttonText = document.querySelector('.button-text');
@@ -32,14 +33,13 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
-/**
- * Mengambil data dari Google Apps Script.
- * @param {string} request - Tipe data yang diminta.
- * @returns {Promise<Array|null>} Data yang diminta atau null jika gagal.
- */
-async function fetchData(request) {
+// fetchData dan populateSelect tidak berubah
+async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
+    for (const key in params) {
+        url.searchParams.append(key, params[key]);
+    }
     try {
         const response = await fetch(url);
         const result = await response.json();
@@ -54,13 +54,6 @@ async function fetchData(request) {
     }
 }
 
-/**
- * Mengisi elemen <select> dengan data.
- * @param {HTMLElement} selectElement - Elemen dropdown yang akan diisi.
- * @param {Array} data - Array data untuk mengisi dropdown.
- * @param {string} valueKey - Kunci untuk nilai <option>.
- * @param {string} textKey - Kunci untuk teks <option>.
- */
 function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     selectElement.innerHTML = `<option value="" disabled selected>Pilih...</option>`;
     if (!data || data.length === 0) {
@@ -80,27 +73,57 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     });
 }
 
+// generateCatatanOtomatis tidak berubah
+function generateCatatanOtomatis() { /* ... kode sama ... */ }
+
+
 /**
- * Membuat atau menghapus catatan otomatis berdasarkan nilai.
+ * [FUNGSI BARU] Mengosongkan semua field pencapaian.
  */
-function generateCatatanOtomatis() {
-    const nilaiBacaan = nilaiBacaanSelect.value;
-    const nilaiHafalan = nilaiHafalanSelect.value;
-
-    if (nilaiBacaan && nilaiHafalan && catatanCache) {
-        const kode = `${nilaiBacaan}-${nilaiHafalan}`;
-        const catatanObj = catatanCache.find(item => item.kode === kode);
-
-        if (catatanObj) {
-            catatanTextarea.value = catatanObj.deskripsi;
-        }
-    } else {
-        catatanTextarea.value = '';
-    }
+function resetPencapaianFields() {
+    jenjangSelect.value = '';
+    dynamicBacaanFields.innerHTML = '';
+    nilaiBacaanSelect.value = '';
+    hafalanSuratSelect.value = '';
+    hafalanAyatInput.value = '';
+    nilaiHafalanSelect.value = '';
+    catatanTextarea.value = '';
 }
 
 /**
- * Fungsi inisialisasi: mengambil semua data awal saat halaman dimuat.
+ * [FUNGSI BARU] Mengisi form dengan data terakhir.
+ */
+function prefillForm(record) {
+    if (record.Jenjang_Bacaan) {
+        jenjangSelect.value = record.Jenjang_Bacaan;
+        jenjangSelect.dispatchEvent(new Event('change'));
+        
+        setTimeout(() => {
+            if (record.Jenjang_Bacaan.startsWith('Iqro')) {
+                const halamanInput = document.getElementById('halamanInput');
+                const barisInput = document.getElementById('barisInput');
+                if (halamanInput) halamanInput.value = record.Detail_Bacaan;
+                if (barisInput) barisInput.value = record.Sub_Detail;
+            } else if (record.Jenjang_Bacaan === "Al Qur'an") {
+                const suratBacaanSelect = document.getElementById('suratBacaanSelect');
+                const ayatBacaanInput = document.getElementById('ayatBacaanInput');
+                if (suratBacaanSelect) suratBacaanSelect.value = record.Detail_Bacaan;
+                if (ayatBacaanInput) ayatBacaanInput.value = record.Sub_Detail;
+            }
+        }, 100);
+    }
+
+    if (record.Nilai_Bacaan) nilaiBacaanSelect.value = record.Nilai_Bacaan;
+    if (record.Surat_Hafalan) hafalanSuratSelect.value = record.Surat_Hafalan;
+    if (record.Ayat_Hafalan) hafalanAyatInput.value = record.Ayat_Hafalan;
+    if (record.Nilai_Hafalan) nilaiHafalanSelect.value = record.Nilai_Hafalan;
+
+    generateCatatanOtomatis();
+}
+
+
+/**
+ * Fungsi inisialisasi: mengambil semua data awal.
  */
 async function initializeForm() {
     kelasSelect.disabled = true;
@@ -116,10 +139,7 @@ async function initializeForm() {
         fetchData('refCatatan')
     ]);
 
-    if (hafalanData) {
-        hafalanSuratCache = hafalanData;
-        populateSelect(hafalanSuratSelect, hafalanSuratCache);
-    }
+    if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); }
     if (bacaanData) bacaanSuratCache = bacaanData;
     if (siswaData) siswaCache = siswaData;
     if (dataCatatan) catatanCache = dataCatatan;
@@ -127,27 +147,46 @@ async function initializeForm() {
     if (siswaCache && catatanCache && hafalanSuratCache && bacaanSuratCache) {
         kelasSelect.disabled = false;
         kelasSelect.remove(1);
-        console.log('Semua cache berhasil dimuat.');
     } else {
         placeholderAwal.textContent = 'Gagal memuat data penting.';
     }
 }
 
+
 // ==================== EVENT LISTENERS ====================
-
 document.addEventListener('DOMContentLoaded', initializeForm);
-
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
-
 kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
     if (!selectedKelas || !siswaCache) return;
     const siswaDiKelas = siswaCache.filter(siswa => siswa.kelas.toString() === selectedKelas);
     populateSelect(siswaSelect, siswaDiKelas, 'id', 'nama');
     siswaSelect.disabled = false;
+    resetPencapaianFields(); // Kosongkan field saat ganti kelas
 });
 
+/**
+ * [EVENT LISTENER BARU] Menjalankan auto-fill saat nama siswa dipilih.
+ */
+siswaSelect.addEventListener('change', async (e) => {
+    const studentId = e.target.value;
+    if (!studentId) return;
+
+    resetPencapaianFields();
+    console.log(`Mencari data terakhir untuk siswa ID: ${studentId}...`);
+    
+    // Tampilkan indikator loading jika perlu
+    
+    const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
+    
+    if (lastRecord) {
+        console.log('Data terakhir ditemukan:', lastRecord);
+        prefillForm(lastRecord);
+    } else {
+        console.log('Tidak ada data sebelumnya untuk siswa ini.');
+    }
+});
 jenjangSelect.addEventListener('change', (e) => {
     const selectedJenjang = e.target.value;
     dynamicBacaanFields.innerHTML = ''; 
