@@ -135,7 +135,7 @@ function prefillForm(record) {
                 </div>
                 <div class="form-group">
                     <label for="barisInput">Baris</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${record.Sub_Detail || ''}" placeholder="Contoh: 1-5">
+                    <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${record.Sub_Detail || ''}">
                 </div>
             `;
         } else if (record.Jenjang_Bacaan === "Al Qur'an") {
