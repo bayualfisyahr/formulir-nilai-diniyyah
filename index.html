@@ -1,183 +1,147 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0" />
-    <title>Formulir BTQ dan Tahfizh</title>
-    <link
-      rel="stylesheet"
-      href="style.css" />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com" />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
-      rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <h1>Nilai BTQ dan Tahfizh Al Qur'an</h1>
-        <h2>SDIT Al Maahyrah</h2>
-      </header>
-      <main>
-        <form id="formInputNilai">
-          <fieldset>
-            <legend>Data Siswa</legend>
-            <div class="form-group">
-              <label for="kelasSelect">Kelas</label>
-              <select
-                id="kelasSelect"
-                name="kelas"
-                required>
-                <option
-                  value=""
-                  disabled
-                  selected>
-                  Pilih Kelas...
-                </option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="siswaSelect">Nama Siswa</label>
-              <select
-                id="siswaSelect"
-                name="siswa"
-                required
-                disabled>
-                <option
-                  value=""
-                  selected>
-                  Pilih kelas terlebih dahulu...
-                </option>
-              </select>
-              <div
-                id="siswaLoader"
-                class="loader"
-                style="display: none"></div>
-            </div>
-          </fieldset>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Nilai</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
 
-          <fieldset>
-            <legend>Penilaian Bacaan</legend>
-            <div class="form-group">
-              <label for="jenjangSelect">Jenjang Bacaan</label>
-              <select
-                id="jenjangSelect"
-                name="jenjangBacaan"
-                >
-                <option
-                  value=""
-                  disabled
-                  selected>
-                  Pilih Jenjang...
-                </option>
-                <option value="Al Qur'an">Al Qur'an</option>
-                <option value="Iqro 6">Iqro 6</option>
-                <option value="Iqro 5">Iqro 5</option>
-                <option value="Iqro 4">Iqro 4</option>
-                <option value="Iqro 3">Iqro 3</option>
-                <option value="Iqro 2">Iqro 2</option>
-                <option value="Iqro 1">Iqro 1</option>
-              </select>
-            </div>
-            <div id="dynamicBacaanFields"></div>
-            <div class="form-group">
-              <label for="nilaiBacaanSelect">Nilai Bacaan</label>
-              <select
-                id="nilaiBacaanSelect"
-                name="nilaiBacaan"
-                >
-                <option
-                  value=""
-                  disabled
-                  selected>
-                  Pilih Nilai...
-                </option>
-                <option value="A">A (Sangat Baik)</option>
-                <option value="B">B (Baik)</option>
-                <option value="C">C (Perlu Ditingkatkan)</option>
-              </select>
-            </div>
-          </fieldset>
+    <!-- [FITUR BARU] Splash Screen -->
+    <div id="splash-screen">
+        <!-- Ganti 'logo.png' dengan path ke logo sekolah Anda yang sudah dioptimalkan -->
+        <img src="logo.png" alt="Logo Sekolah" class="splash-logo">
+        <div class="splash-loader"></div>
+    </div>
 
-          <fieldset>
-            <legend>Penilaian Hafalan</legend>
-            <div class="form-group">
-              <label for="hafalanSuratSelect">Surat Hafalan</label>
-              <select
-                id="hafalanSuratSelect"
-                name="suratHafalan"
-                >
-                <option
-                  value=""
-                  disabled
-                  selected>
-                  Memuat surat...
-                </option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="hafalanAyatInput">Ayat</label>
-              <input
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)"
-                id="hafalanAyatInput"
-                name="ayatHafalan"
-                 />
-            </div>
-            <div class="form-group">
-              <label for="nilaiHafalanSelect">Nilai Hafalan</label>
-              <select
-                id="nilaiHafalanSelect"
-                name="nilaiHafalan"
-                >
-                <option
-                  value=""
-                  disabled
-                  selected>
-                  Pilih Nilai...
-                </option>
-                <option value="A">A (Sangat Baik)</option>
-                <option value="B">B (Baik)</option>
-                <option value="C">C (Perlu Ditingkatkan)</option>
-              </select>
-            </div>
-          </fieldset>
+    <!-- Konten Utama Aplikasi (Awalnya tersembunyi) -->
+    <div id="app-container" class="hidden">
+        <div class="container">
+            <header>
+                <!-- [FITUR BARU] Logo di Header -->
+                <img src="logo.png" alt="Logo Sekolah" class="header-logo">
+                <h1>Nilai BTQ dan Tahfizh Al Qur'an</h1>
+                <p>SDIT Al Maahyah</p>
+            </header>
+            <main>
+                <form id="formInputNilai">
+                    <!-- Data Siswa -->
+                    <fieldset>
+                        <legend>
+                            <!-- [FITUR BARU] Ikon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                              <circle cx="12" cy="7" r="4"></circle></svg>
+                            Data Siswa
+                        </legend>
+                        <div class="form-group">
+                            <label for="kelasSelect">Kelas</label>
+                            <select id="kelasSelect" name="kelas" required>
+                                <option value="" disabled selected>Pilih Kelas...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="siswaSelect">Nama Siswa</label>
+                            <select id="siswaSelect" name="siswa" required disabled>
+                                <option value="" selected>Pilih kelas terlebih dahulu...</option>
+                            </select>
+                        </div>
+                        <!-- [FITUR BARU] Info Setoran Terakhir -->
+                        <div id="last-deposit-info" class="info-box hidden"></div>
+                    </fieldset>
 
-          <fieldset>
-            <legend>Catatan Guru</legend>
-            <div class="form-group">
-              <label for="catatanTextarea">Keterangan</label>
-              <textarea id="catatanTextarea" name="catatanFinal" 
-                rows="6" ></textarea>
-            </div>
-          </fieldset>
+                    <!-- Penilaian Bacaan -->
+                    <fieldset>
+                        <legend>
+                             <!-- [FITUR BARU] Ikon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                            Penilaian Bacaan
+                        </legend>
+                        <div class="form-group">
+                            <label for="jenjangSelect">Jenjang Bacaan</label>
+                            <select id="jenjangSelect" name="jenjangBacaan">
+                                <option value="" disabled selected>Pilih Jenjang...</option>
+                                <option value="Al Qur'an">Al Qur'an</option>
+                                <option value="Iqro 6">Iqro 6</option>
+                                <option value="Iqro 5">Iqro 5</option>
+                                <option value="Iqro 4">Iqro 4</option>
+                                <option value="Iqro 3">Iqro 3</option>
+                                <option value="Iqro 2">Iqro 2</option>
+                                <option value="Iqro 1">Iqro 1</option>
+                            </select>
+                        </div>
+                        <div id="dynamicBacaanFields"></div>
+                        <div class="form-group">
+                            <label for="nilaiBacaanSelect">Nilai Bacaan</label>
+                            <select id="nilaiBacaanSelect" name="nilaiBacaan">
+                                <option value="" disabled selected>Pilih Nilai...</option>
+                                <option value="A">A (Sangat Baik)</option>
+                                <option value="B">B (Baik)</option>
+                                <option value="C">C (Perlu Ditingkatkan)</option>
+                            </select>
+                        </div>
+                    </fieldset>
 
-          <button
-            type="submit"
-            id="submitButton">
-            <span class="button-text">Kirim Laporan</span>
-            <div
-              id="submitLoader"
-              class="loader-small"
-              style="display: none"></div>
-          </button>
-          <div id="statusMessage"></div>
-        </form>
-      </main>
+                    <!-- Penilaian Hafalan -->
+                    <fieldset>
+                        <legend>
+                             <!-- [FITUR BARU] Ikon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            Penilaian Hafalan
+                        </legend>
+                        <div class="form-group">
+                            <label for="hafalanSuratSelect">Surat Hafalan</label>
+                            <select id="hafalanSuratSelect" name="suratHafalan">
+                                <option value="" disabled selected>Memuat surat...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hafalanAyatInput">Ayat</label>
+                            <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="hafalanAyatInput" name="ayatHafalan" placeholder="Contoh: 1-7">
+                        </div>
+                        <div class="form-group">
+                            <label for="nilaiHafalanSelect">Nilai Hafalan</label>
+                            <select id="nilaiHafalanSelect" name="nilaiHafalan">
+                                <option value="" disabled selected>Pilih Nilai...</option>
+                                <option value="A">A (Sangat Baik)</option>
+                                <option value="B">B (Baik)</option>
+                                <option value="C">C (Perlu Ditingkatkan)</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <!-- Catatan Guru -->
+                    <fieldset>
+                        <legend>
+                             <!-- [FITUR BARU] Ikon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            Catatan Guru
+                        </legend>
+                        <div class="form-group">
+                            <label for="catatanTextarea">Keterangan</label>
+                            <textarea id="catatanTextarea" name="catatanFinal" rows="6" placeholder="Catatan otomatis akan muncul di sini..."></textarea>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" id="submitButton">
+                        <span class="button-text">Kirim Laporan</span>
+                        <div id="submitLoader" class="loader-small" style="display: none;"></div>
+                    </button>
+                    <div id="statusMessage"></div>
+                </form>
+            </main>
+        </div>
     </div>
     <script src="script.js"></script>
-  </body>
+</body>
 </html>
