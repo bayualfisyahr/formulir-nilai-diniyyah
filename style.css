@@ -1,6 +1,6 @@
 :root {
     --primary-color: #047857; /* Hijau dari logo */
-    --secondary-color: #4B5563; /* Abu-abu gelap dari bingkai logo */
+    --secondary-color: 	#006400; /* Abu-abu gelap dari bingkai logo */
     --background-color: #f3f4f6;
     --form-background: #ffffff;
     --text-color: #1F2937; /* Abu-abu yang lebih gelap untuk teks */
@@ -114,9 +114,10 @@ header h1 {
     font-size: 1.5rem;
 }
 
-header p {
-    font-weight: 600;
+header h2 {
+    font-weight: 650;
     color: var(--secondary-color);
+    font-size: 1.5rem;
 }
 
 fieldset {
