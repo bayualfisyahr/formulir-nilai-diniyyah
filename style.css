@@ -1,14 +1,14 @@
 :root {
-    --primary-color: #007BFF;
-    --secondary-color: #6c757d;
-    --background-color: #f4f7f6;
+    --primary-color: #047857; /* Hijau dari logo */
+    --secondary-color: #4B5563; /* Abu-abu gelap dari bingkai logo */
+    --background-color: #f3f4f6;
     --form-background: #ffffff;
-    --text-color: #333;
-    --border-color: #ddd;
-    --success-color: #28a745;
-    --error-color: #dc3545;
-    --info-color: #e2e3e5;
-    --info-text-color: #383d41;
+    --text-color: #1F2937; /* Abu-abu yang lebih gelap untuk teks */
+    --border-color: #D1D5DB;
+    --success-color: #16a34a;
+    --error-color: #dc2626;
+    --info-color: #e5e7eb;
+    --info-text-color: #374151;
     --font-family: 'Poppins', sans-serif;
 }
 
@@ -29,7 +29,7 @@ body {
     padding: 20px;
 }
 
-/* [FITUR BARU] Splash Screen Styling */
+/* Splash Screen Styling */
 #splash-screen {
     position: fixed;
     top: 0;
@@ -103,10 +103,9 @@ header {
     align-items: center;
 }
 
+/* Dihapus karena kita tidak pakai logo lagi */
 .header-logo {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 15px;
+    display: none; 
 }
 
 header h1 {
@@ -165,7 +164,7 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.2);
 }
 
 select[disabled] {
@@ -173,7 +172,7 @@ select[disabled] {
     cursor: not-allowed;
 }
 
-/* [FITUR BARU] Info Box Styling */
+/* Info Box Styling */
 .info-box {
     padding: 10px 15px;
     margin-top: 10px;
@@ -206,7 +205,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #0056b3;
+    background-color: #065f46; /* Warna hijau yang lebih gelap untuk hover */
 }
 
 #statusMessage {
@@ -219,13 +218,13 @@ button[type="submit"]:hover {
 }
 
 .status-success {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #dcfce7;
+    color: #166534;
 }
 
 .status-error {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
 .loader-small {
