@@ -11,7 +11,6 @@ const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 
-
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
 let catatanCache = null;
@@ -36,12 +35,15 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
-// fetchData dan populateSelect tidak berubah
+// [FUNGSI DIPERBAIKI] fetchData kini lebih andal menangani parameter
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
-    for (const key in params) {
-        url.searchParams.append(key, params[key]);
+    // Hanya tambahkan parameter jika ada
+    if (params) {
+        for (const key in params) {
+            url.searchParams.append(key, params[key]);
+        }
     }
     try {
         const response = await fetch(url);
