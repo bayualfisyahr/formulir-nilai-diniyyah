@@ -6,10 +6,6 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREIN
 
 // Ganti dengan URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
-// =================================================================================
-// =================================================================================
-// KONFIGURASI PENTING - HARAP DIISI
-// =================================================================================
 
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
@@ -35,11 +31,10 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
-// [FUNGSI DIPERBAIKI] fetchData kini lebih andal menangani parameter
+// fetchData dan populateSelect tidak berubah
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
-    // Hanya tambahkan parameter jika ada
     if (params) {
         for (const key in params) {
             url.searchParams.append(key, params[key]);
@@ -86,13 +81,8 @@ function generateCatatanOtomatis() {
     if (nilaiBacaan && nilaiHafalan && catatanCache) {
         const kode = `${nilaiBacaan}-${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
-
         if (catatanObj) {
-            const catatanManual = catatanTextarea.value.split(" | Tambahan: ")[1] || '';
             catatanTextarea.value = catatanObj.deskripsi;
-            if (catatanManual) {
-                catatanTextarea.value += ` | Tambahan: ${catatanManual}`;
-            }
         }
     } else {
         catatanTextarea.value = '';
@@ -100,7 +90,7 @@ function generateCatatanOtomatis() {
 }
 
 /**
- * [FUNGSI BARU] Mengosongkan semua field pencapaian.
+ * Mengosongkan semua field pencapaian.
  */
 function resetPencapaianFields() {
     jenjangSelect.value = '';
@@ -116,55 +106,60 @@ function resetPencapaianFields() {
  * [FUNGSI DIPERBAIKI TOTAL] Mengisi form dengan data terakhir secara andal.
  */
 function prefillForm(record) {
-    // Kosongkan dulu semua field untuk memastikan kebersihan data
     resetPencapaianFields();
     
-    // Untuk debugging, kita bisa lihat data yang diterima
-    console.log("Data untuk prefill:", record);
+    // Langsung buat dan isi field dinamis berdasarkan data
+    updateDynamicBacaanFields(record.Jenjang_Bacaan, record);
 
-    // Mengisi data bacaan
-    if (record.Jenjang_Bacaan) {
-        jenjangSelect.value = record.Jenjang_Bacaan;
-        
-        // Langsung buat dan isi field dinamis di sini, tanpa menunggu
-        if (record.Jenjang_Bacaan.startsWith('Iqro')) {
-            dynamicBacaanFields.innerHTML = `
-                <div class="form-group">
-                    <label for="halamanInput">Halaman</label>
-                    <input type="number" id="halamanInput" name="detailBacaan" value="${record.Detail_Bacaan || ''}" placeholder="1 - 31" min="1" max="31">
-                </div>
-                <div class="form-group">
-                    <label for="barisInput">Baris</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${record.Sub_Detail || ''}">
-                </div>
-            `;
-        } else if (record.Jenjang_Bacaan === "Al Qur'an") {
-            dynamicBacaanFields.innerHTML = `
-                <div class="form-group">
-                    <label for="suratBacaanSelect">Surat</label>
-                    <select id="suratBacaanSelect" name="detailBacaan"></select>
-                </div>
-                <div class="form-group">
-                    <label for="ayatBacaanInput">Ayat</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${record.Sub_Detail || ''}" placeholder="Contoh: 1-10">
-                </div>
-            `;
-            const suratBacaanSelect = document.getElementById('suratBacaanSelect');
-            if (bacaanSuratCache) {
-                populateSelect(suratBacaanSelect, bacaanSuratCache);
-                suratBacaanSelect.value = record.Detail_Bacaan || '';
-            }
+    // Mengisi sisa data
+    jenjangSelect.value = record.Jenjang_Bacaan || '';
+    nilaiBacaanSelect.value = record.Nilai_Bacaan || '';
+    hafalanSuratSelect.value = record.Surat_Hafalan || '';
+    hafalanAyatInput.value = record.Ayat_Hafalan || '';
+    nilaiHafalanSelect.value = record.Nilai_Hafalan || '';
+
+    // Panggil fungsi untuk mengisi catatan otomatis
+    generateCatatanOtomatis();
+}
+
+/**
+ * [FUNGSI BARU] Membuat atau memperbarui kolom dinamis (Halaman/Ayat).
+ * Fungsi ini menjadi satu-satunya sumber kebenaran untuk membuat kolom-kolom ini.
+ */
+function updateDynamicBacaanFields(jenjang, record = null) {
+    const detailBacaanValue = record ? record.Detail_Bacaan : '';
+    const subDetailValue = record ? record.Sub_Detail : '';
+
+    dynamicBacaanFields.innerHTML = ''; // Selalu kosongkan terlebih dahulu
+
+    if (jenjang && jenjang.startsWith('Iqro')) {
+        dynamicBacaanFields.innerHTML = `
+            <div class="form-group">
+                <label for="halamanInput">Halaman</label>
+                <input type="number" id="halamanInput" name="detailBacaan" value="${detailBacaanValue}" placeholder="1 - 31" min="1" max="31">
+            </div>
+            <div class="form-group">
+                <label for="barisInput">Baris</label>
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-5">
+            </div>
+        `;
+    } else if (jenjang === "Al Qur'an") {
+        dynamicBacaanFields.innerHTML = `
+            <div class="form-group">
+                <label for="suratBacaanSelect">Surat</label>
+                <select id="suratBacaanSelect" name="detailBacaan"></select>
+            </div>
+            <div class="form-group">
+                <label for="ayatBacaanInput">Ayat</label>
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-10">
+            </div>
+        `;
+        const suratBacaanSelect = document.getElementById('suratBacaanSelect');
+        if (bacaanSuratCache) {
+            populateSelect(suratBacaanSelect, bacaanSuratCache);
+            suratBacaanSelect.value = detailBacaanValue;
         }
     }
-
-    // Mengisi data nilai dan hafalan
-    if (record.Nilai_Bacaan) nilaiBacaanSelect.value = record.Nilai_Bacaan;
-    if (record.Surat_Hafalan) hafalanSuratSelect.value = record.Surat_Hafalan;
-    if (record.Ayat_Hafalan) hafalanAyatInput.value = record.Ayat_Hafalan;
-    if (record.Nilai_Hafalan) nilaiHafalanSelect.value = record.Nilai_Hafalan;
-
-    // Panggil fungsi untuk mengisi catatan otomatis setelah semua nilai terisi
-    generateCatatanOtomatis();
 }
 
 
@@ -198,9 +193,10 @@ async function initializeForm() {
     }
 }
 
-
 // ==================== EVENT LISTENERS ====================
+
 document.addEventListener('DOMContentLoaded', initializeForm);
+
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
 
@@ -213,66 +209,22 @@ kelasSelect.addEventListener('change', (e) => {
     resetPencapaianFields();
 });
 
-/**
- * [EVENT LISTENER DIPERBAIKI] Menjalankan auto-fill saat nama siswa dipilih.
- */
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
 
     resetPencapaianFields();
-    console.log(`Mencari data terakhir untuk siswa ID: ${studentId}...`);
-    
-    // Tampilkan indikator loading jika perlu
     
     const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
     
     if (lastRecord) {
-        console.log('Data terakhir ditemukan:', lastRecord);
         prefillForm(lastRecord);
-    } else {
-        console.log('Tidak ada data sebelumnya untuk siswa ini.');
     }
 });
 
-// Event listener ini untuk perubahan manual oleh guru
+// [EVENT LISTENER DIPERBAIKI] Sekarang akan selalu berjalan dengan benar.
 jenjangSelect.addEventListener('change', (e) => {
-    // Cek apakah kolom dinamis sudah dibuat oleh prefillForm. Jika ya, jangan lakukan apa-apa.
-    const isDynamicFieldExist = document.getElementById('halamanInput') || document.getElementById('suratBacaanSelect');
-    if (isDynamicFieldExist) return;
-
-    const selectedJenjang = e.target.value;
-    dynamicBacaanFields.innerHTML = '';
-
-    if (selectedJenjang.startsWith('Iqro')) {
-        dynamicBacaanFields.innerHTML = `
-            <div class="form-group">
-                <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31">
-            </div>
-            <div class="form-group">
-                <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-5">
-            </div>
-        `;
-    } else if (selectedJenjang === "Al Qur'an") {
-        dynamicBacaanFields.innerHTML = `
-            <div class="form-group">
-                <label for="suratBacaanSelect">Surat</label>
-                <select id="suratBacaanSelect" name="detailBacaan">
-                    <option value="" disabled selected>Pilih Surat...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="ayatBacaanInput">Ayat</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" placeholder="Contoh: 1-10">
-            </div>
-        `;
-        const suratBacaanSelect = document.getElementById('suratBacaanSelect');
-        if(bacaanSuratCache) {
-            populateSelect(suratBacaanSelect, bacaanSuratCache);
-        }
-    }
+    updateDynamicBacaanFields(e.target.value);
 });
 
 form.addEventListener('submit', async (e) => {
@@ -319,3 +271,4 @@ form.addEventListener('submit', async (e) => {
         setTimeout(() => { statusMessage.style.display = 'none'; }, 6000);
     }
 });
+
