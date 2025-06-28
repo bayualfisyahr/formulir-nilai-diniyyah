@@ -10,12 +10,7 @@ const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b
 // =================================================================================
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
-// Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_NEW_APPS_SCRIPT_URL_HERE'; 
 
-// Ganti dengan URL Webhook n8n Anda yang sudah berjalan
-const N8N_WEBHOOK_URL = 'URL_N8N_ANDA_YANG_SUDAH_BENAR';
-// =================================================================================
 
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
