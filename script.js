@@ -1,14 +1,14 @@
 // =================================================================================
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
-// Ganti dengan URL Web App BARU dari Google Apps Script yang sudah Anda deploy
+// URL Web App BARU dari Google Apps Script yang sudah Anda deploy
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREINwIoVYaER4diRsOVAX9QbRBqusHJMKgqzpPSwtwMh1JnIS3Hb0xTTiO-jV6a/exec'; 
 
-// Ganti dengan URL Webhook n8n Anda yang sudah berjalan
+// URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 
 
-// [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
+// [CACHE] Variabel untuk menyimpan data 
 let siswaCache = null;
 let catatanCache = null;
 let hafalanSuratCache = null;
@@ -35,7 +35,7 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
-// fetchData dan populateSelect tidak berubah
+// fetchData dan populateSelect 
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
@@ -77,9 +77,34 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     });
 }
 
-// generateCatatanOtomatis tidak berubah
-function generateCatatanOtomatis() { /* ... kode sama ... */ }
+// generateCatatanOtomatis 
+function generateCatatanOtomatis() {
+    const nilaiBacaan = nilaiBacaanSelect.value;
+    const nilaiHafalan = nilaiHafalanSelect.value;
 
+    // Hanya berjalan jika kedua nilai sudah dipilih dan cache catatan sudah siap
+    if (nilaiBacaan && nilaiHafalan && catatanCache) {
+        const kode = `${nilaiBacaan}-${nilaiHafalan}`;
+        const catatanObj = catatanCache.find(item => item.kode === kode);
+
+        if (catatanObj) {
+            // Periksa apakah ada catatan manual yang sudah diketik oleh guru
+            const catatanManual = catatanTextarea.value.split(" | Tambahan: ")[1] || '';
+            
+            // Tampilkan catatan otomatis ke textarea
+            catatanTextarea.value = catatanObj.deskripsi;
+
+            // Jika ada catatan manual sebelumnya, tambahkan kembali
+            if (catatanManual) {
+                catatanTextarea.value += ` | Tambahan: ${catatanManual}`;
+            }
+        }
+    } else {
+        // Jika salah satu atau kedua nilai kosong, kosongkan textarea
+        // agar guru bisa mengisi manual.
+        catatanTextarea.value = '';
+    }
+}
 /**
  * Mengosongkan semua field pencapaian.
  */
@@ -96,12 +121,12 @@ function resetPencapaianFields() {
 }
 
 /**
- * [FUNGSI DIPERBARUI] Mengisi form dengan data terakhir secara andal.
+ * Mengisi form dengan data terakhir
  */
 function prefillForm(record) {
     resetPencapaianFields();
     
-    // [FITUR BARU] Tampilkan info setoran terakhir
+    //Tampilkan info setoran terakhir
     if (record.Timestamp) {
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
             weekday: 'long',
@@ -125,7 +150,7 @@ function prefillForm(record) {
 }
 
 /**
- * [FUNGSI DIPERBARUI] Membuat atau memperbarui kolom dinamis (Halaman/Ayat).
+ * Membuat atau memperbarui kolom dinamis (Halaman/Ayat).
  */
 function updateDynamicBacaanFields(jenjang, record = null) {
     const detailBacaanValue = record ? (record.Detail_Bacaan || '') : '';
@@ -165,7 +190,7 @@ function updateDynamicBacaanFields(jenjang, record = null) {
 
 
 /**
- * [FUNGSI DIPERBARUI] Fungsi inisialisasi untuk mengontrol splash screen.
+ * Fungsi inisialisasi untuk mengontrol splash screen.
  */
 async function initializeForm() {
     const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
@@ -193,8 +218,6 @@ async function initializeForm() {
 // ==================== EVENT LISTENERS ====================
 document.addEventListener('DOMContentLoaded', initializeForm);
 
-// ... Sisa event listener (nilaiBacaanSelect, nilaiHafalanSelect, kelasSelect, siswaSelect, jenjangSelect, form.addEventListener('submit', ...))
-// tetap sama seperti kode lengkap sebelumnya. Salin dari versi Anda yang sudah berfungsi.
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 hafalanSuratSelect.addEventListener('change', generateCatatanOtomatis);
 kelasSelect.addEventListener('change', (e) => {
