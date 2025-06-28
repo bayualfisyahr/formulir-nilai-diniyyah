@@ -7,7 +7,6 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREIN
 // URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 
-
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
 let catatanCache = null;
@@ -131,11 +130,11 @@ function updateDynamicBacaanFields(jenjang, record = null) {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" value="${detailBacaanValue}" placeholder="Contoh: 11" min="1" max="31">
+                <input type="number" id="halamanInput" name="detailBacaan" value="${detailBacaanValue}" placeholder="1 - 31" min="1" max="31">
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-8">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-5">
             </div>
         `;
     } else if (jenjang === "Al Qur'an") {
@@ -146,7 +145,7 @@ function updateDynamicBacaanFields(jenjang, record = null) {
             </div>
             <div class="form-group">
                 <label for="ayatBacaanInput">Ayat</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 7-12">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-10">
             </div>
         `;
         const suratBacaanSelect = document.getElementById('suratBacaanSelect');
@@ -220,13 +219,26 @@ kelasSelect.addEventListener('change', (e) => {
     resetPencapaianFields();
 });
 
+// [EVENT LISTENER DIPERBARUI] Menambahkan indikator loading.
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
+
     resetPencapaianFields();
+    
+    // Tampilkan pesan "Memuat data..."
+    lastDepositInfo.textContent = 'Memuat data terakhir...';
+    lastDepositInfo.classList.remove('hidden');
+    
     const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
+    
     if (lastRecord) {
+        // Jika data ditemukan, prefillForm akan memperbarui teksnya
         prefillForm(lastRecord);
+    } else {
+        // Jika tidak ada data, sembunyikan kembali pesan loading
+        lastDepositInfo.classList.add('hidden');
+        console.log('Tidak ada data sebelumnya untuk siswa ini.');
     }
 });
 
