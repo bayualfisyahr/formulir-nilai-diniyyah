@@ -131,11 +131,11 @@ function updateDynamicBacaanFields(jenjang, record = null) {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" value="${detailBacaanValue}" placeholder="1 - 31" min="1" max="31">
+                <input type="number" id="halamanInput" name="detailBacaan" value="${detailBacaanValue}" placeholder="Contoh: 11" min="1" max="31">
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-5">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-8">
             </div>
         `;
     } else if (jenjang === "Al Qur'an") {
@@ -146,7 +146,7 @@ function updateDynamicBacaanFields(jenjang, record = null) {
             </div>
             <div class="form-group">
                 <label for="ayatBacaanInput">Ayat</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 1-10">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${subDetailValue}" placeholder="Contoh: 7-12">
             </div>
         `;
         const suratBacaanSelect = document.getElementById('suratBacaanSelect');
