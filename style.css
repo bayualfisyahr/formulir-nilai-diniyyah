@@ -115,9 +115,9 @@ header h1 {
 }
 
 header h2 {
-    font-weight: 650;
+    font-weight: 700;
     color: var(--secondary-color);
-    font-size: 1.5rem;
+    font-size: 1rem;
 }
 
 fieldset {
