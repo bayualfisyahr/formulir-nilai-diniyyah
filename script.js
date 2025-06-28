@@ -7,6 +7,15 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREIN
 // Ganti dengan URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
+// =================================================================================
+// KONFIGURASI PENTING - HARAP DIISI
+// =================================================================================
+// Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
+const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_NEW_APPS_SCRIPT_URL_HERE'; 
+
+// Ganti dengan URL Webhook n8n Anda yang sudah berjalan
+const N8N_WEBHOOK_URL = 'URL_N8N_ANDA_YANG_SUDAH_BENAR';
+// =================================================================================
 
 // [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
@@ -107,11 +116,14 @@ function resetPencapaianFields() {
 }
 
 /**
- * [FUNGSI DIPERBAIKI] Mengisi form dengan data terakhir secara andal.
+ * [FUNGSI DIPERBAIKI TOTAL] Mengisi form dengan data terakhir secara andal.
  */
 function prefillForm(record) {
     // Kosongkan dulu semua field untuk memastikan kebersihan data
     resetPencapaianFields();
+    
+    // Untuk debugging, kita bisa lihat data yang diterima
+    console.log("Data untuk prefill:", record);
 
     // Mengisi data bacaan
     if (record.Jenjang_Bacaan) {
@@ -205,7 +217,7 @@ kelasSelect.addEventListener('change', (e) => {
 });
 
 /**
- * [EVENT LISTENER BARU] Menjalankan auto-fill saat nama siswa dipilih.
+ * [EVENT LISTENER DIPERBAIKI] Menjalankan auto-fill saat nama siswa dipilih.
  */
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
@@ -228,9 +240,12 @@ siswaSelect.addEventListener('change', async (e) => {
 
 // Event listener ini untuk perubahan manual oleh guru
 jenjangSelect.addEventListener('change', (e) => {
+    // Cek apakah kolom dinamis sudah dibuat oleh prefillForm. Jika ya, jangan lakukan apa-apa.
+    const isDynamicFieldExist = document.getElementById('halamanInput') || document.getElementById('suratBacaanSelect');
+    if (isDynamicFieldExist) return;
+
     const selectedJenjang = e.target.value;
-    // Hanya proses jika bukan dipicu oleh prefill (yaitu jika kolom dinamis masih kosong)
-    if (dynamicBacaanFields.innerHTML !== '') return;
+    dynamicBacaanFields.innerHTML = '';
 
     if (selectedJenjang.startsWith('Iqro')) {
         dynamicBacaanFields.innerHTML = `
