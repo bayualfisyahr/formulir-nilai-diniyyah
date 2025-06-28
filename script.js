@@ -8,7 +8,7 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREIN
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 
 
-// [CACHE] Variabel untuk menyimpan data 
+// [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
 let catatanCache = null;
 let hafalanSuratCache = null;
@@ -27,7 +27,7 @@ const nilaiHafalanSelect = document.getElementById('nilaiHafalanSelect');
 const hafalanSuratSelect = document.getElementById('hafalanSuratSelect');
 const hafalanAyatInput = document.getElementById('hafalanAyatInput');
 const catatanTextarea = document.getElementById('catatanTextarea');
-const lastDepositInfo = document.getElementById('last-deposit-info'); // [BARU]
+const lastDepositInfo = document.getElementById('last-deposit-info');
 const submitButton = document.getElementById('submitButton');
 const buttonText = document.querySelector('.button-text');
 const submitLoader = document.getElementById('submitLoader');
@@ -35,7 +35,12 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
-// fetchData dan populateSelect 
+/**
+ * Mengambil data dari Google Apps Script.
+ * @param {string} request - Tipe data yang diminta.
+ * @param {object} params - Parameter tambahan.
+ * @returns {Promise<Array|null>} Data yang diminta atau null jika gagal.
+ */
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
@@ -58,6 +63,9 @@ async function fetchData(request, params = {}) {
     }
 }
 
+/**
+ * Mengisi elemen <select> dengan data.
+ */
 function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     selectElement.innerHTML = `<option value="" disabled selected>Pilih...</option>`;
     if (!data || data.length === 0) {
@@ -77,36 +85,26 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     });
 }
 
-// generateCatatanOtomatis 
+/**
+ * Membuat atau menghapus catatan otomatis berdasarkan nilai.
+ */
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
 
-    // Hanya berjalan jika kedua nilai sudah dipilih dan cache catatan sudah siap
     if (nilaiBacaan && nilaiHafalan && catatanCache) {
         const kode = `${nilaiBacaan}-${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
-
         if (catatanObj) {
-            // Periksa apakah ada catatan manual yang sudah diketik oleh guru
-            const catatanManual = catatanTextarea.value.split(" | Tambahan: ")[1] || '';
-            
-            // Tampilkan catatan otomatis ke textarea
             catatanTextarea.value = catatanObj.deskripsi;
-
-            // Jika ada catatan manual sebelumnya, tambahkan kembali
-            if (catatanManual) {
-                catatanTextarea.value += ` | Tambahan: ${catatanManual}`;
-            }
         }
     } else {
-        // Jika salah satu atau kedua nilai kosong, kosongkan textarea
-        // agar guru bisa mengisi manual.
         catatanTextarea.value = '';
     }
 }
+
 /**
- * Mengosongkan semua field pencapaian.
+ * Mengosongkan semua field pencapaian untuk input baru.
  */
 function resetPencapaianFields() {
     jenjangSelect.value = '';
@@ -116,37 +114,8 @@ function resetPencapaianFields() {
     hafalanAyatInput.value = '';
     nilaiHafalanSelect.value = '';
     catatanTextarea.value = '';
-    lastDepositInfo.classList.add('hidden'); // Sembunyikan info
+    lastDepositInfo.classList.add('hidden');
     lastDepositInfo.textContent = '';
-}
-
-/**
- * Mengisi form dengan data terakhir
- */
-function prefillForm(record) {
-    resetPencapaianFields();
-    
-    //Tampilkan info setoran terakhir
-    if (record.Timestamp) {
-        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-        lastDepositInfo.textContent = `Setoran terakhir pada: ${tgl}`;
-        lastDepositInfo.classList.remove('hidden');
-    }
-
-    updateDynamicBacaanFields(record.Jenjang_Bacaan, record);
-    
-    jenjangSelect.value = record.Jenjang_Bacaan || '';
-    nilaiBacaanSelect.value = record.Nilai_Bacaan || '';
-    hafalanSuratSelect.value = record.Surat_Hafalan || '';
-    hafalanAyatInput.value = record.Ayat_Hafalan || '';
-    nilaiHafalanSelect.value = record.Nilai_Hafalan || '';
-
-    generateCatatanOtomatis();
 }
 
 /**
@@ -156,7 +125,7 @@ function updateDynamicBacaanFields(jenjang, record = null) {
     const detailBacaanValue = record ? (record.Detail_Bacaan || '') : '';
     const subDetailValue = record ? (record.Sub_Detail || '') : '';
 
-    dynamicBacaanFields.innerHTML = ''; 
+    dynamicBacaanFields.innerHTML = '';
 
     if (jenjang && jenjang.startsWith('Iqro')) {
         dynamicBacaanFields.innerHTML = `
@@ -188,9 +157,33 @@ function updateDynamicBacaanFields(jenjang, record = null) {
     }
 }
 
+/**
+ * Mengisi form dengan data terakhir secara andal.
+ */
+function prefillForm(record) {
+    resetPencapaianFields();
+    
+    if (record.Timestamp) {
+        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+        lastDepositInfo.textContent = `Setoran terakhir pada: ${tgl}`;
+        lastDepositInfo.classList.remove('hidden');
+    }
+
+    updateDynamicBacaanFields(record.Jenjang_Bacaan, record);
+    
+    jenjangSelect.value = record.Jenjang_Bacaan || '';
+    nilaiBacaanSelect.value = record.Nilai_Bacaan || '';
+    hafalanSuratSelect.value = record.Surat_Hafalan || '';
+    hafalanAyatInput.value = record.Ayat_Hafalan || '';
+    nilaiHafalanSelect.value = record.Nilai_Hafalan || '';
+
+    generateCatatanOtomatis();
+}
 
 /**
- * Fungsi inisialisasi untuk mengontrol splash screen.
+ * Fungsi inisialisasi: mengambil semua data awal dan mengontrol splash screen.
  */
 async function initializeForm() {
     const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
@@ -200,26 +193,24 @@ async function initializeForm() {
         fetchData('refCatatan')
     ]);
 
-    // Proses data dan simpan ke cache
     if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); }
     if (bacaanData) bacaanSuratCache = bacaanData;
     if (siswaData) siswaCache = siswaData;
     if (dataCatatan) catatanCache = dataCatatan;
 
-    // Sembunyikan splash screen dan tampilkan aplikasi
     splashScreen.style.opacity = '0';
     setTimeout(() => {
         splashScreen.style.display = 'none';
         appContainer.classList.remove('hidden');
-    }, 500); // Waktu transisi opacity
+    }, 500);
 }
 
-
 // ==================== EVENT LISTENERS ====================
-document.addEventListener('DOMContentLoaded', initializeForm);
 
+document.addEventListener('DOMContentLoaded', initializeForm);
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
-hafalanSuratSelect.addEventListener('change', generateCatatanOtomatis);
+nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
+
 kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
     if (!selectedKelas || !siswaCache) return;
@@ -228,25 +219,65 @@ kelasSelect.addEventListener('change', (e) => {
     siswaSelect.disabled = false;
     resetPencapaianFields();
 });
+
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
-
     resetPencapaianFields();
-    
     const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
-    
     if (lastRecord) {
         prefillForm(lastRecord);
     }
 });
+
 jenjangSelect.addEventListener('change', (e) => {
     updateDynamicBacaanFields(e.target.value);
 });
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault(); 
     submitButton.disabled = true;
-    // ... sisa kode submit sama
+    buttonText.style.display = 'none';
+    submitLoader.style.display = 'block';
+    statusMessage.style.display = 'none';
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    const selectedSiswaOption = siswaSelect.options[siswaSelect.selectedIndex];
+    data.idSiswa = selectedSiswaOption.value;
+    data.namaSiswa = selectedSiswaOption.text;
+    
+    try {
+        const response = await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Terjadi kesalahan pada server n8n.');
+        }
+        const result = await response.json();
+        statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
+        statusMessage.className = 'status-success';
+        form.reset();
+        siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
+        siswaSelect.disabled = true;
+        dynamicBacaanFields.innerHTML = '';
+        catatanTextarea.value = '';
+        lastDepositInfo.classList.add('hidden');
+    } catch (error) {
+        console.error('Submit error:', error);
+        statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
+        statusMessage.className = 'status-error';
+    } finally {
+        submitButton.disabled = false;
+        buttonText.style.display = 'inline';
+        submitLoader.style.display = 'none';
+        statusMessage.style.display = 'block';
+        setTimeout(() => { statusMessage.style.display = 'none'; }, 6000);
+    }
 });
 
 
