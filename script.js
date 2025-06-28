@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script yang sudah Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJvRR3b651acjNrMmAgtvJHIO19NMVqM4TjWAZxIGtkJUEOkHVcLQtVCyDL5kS4d6i/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEsB2cpYQVPd3wkqoV7nVOIf8u8lDNEITVOBJMDH8j3lBeh0lf_I07YbX85T8WWq_b/exec'; 
 
 // Ganti dengan URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
