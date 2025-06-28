@@ -18,7 +18,6 @@ let bacaanSuratCache = null;
 const form = document.getElementById('formInputNilai');
 const kelasSelect = document.getElementById('kelasSelect');
 const siswaSelect = document.getElementById('siswaSelect');
-// ... dan semua elemen lain yang sudah Anda definisikan sebelumnya ...
 const jenjangSelect = document.getElementById('jenjangSelect');
 const dynamicBacaanFields = document.getElementById('dynamicBacaanFields');
 const nilaiBacaanSelect = document.getElementById('nilaiBacaanSelect');
@@ -74,8 +73,25 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
 }
 
 // generateCatatanOtomatis tidak berubah
-function generateCatatanOtomatis() { /* ... kode sama ... */ }
+function generateCatatanOtomatis() {
+    const nilaiBacaan = nilaiBacaanSelect.value;
+    const nilaiHafalan = nilaiHafalanSelect.value;
 
+    if (nilaiBacaan && nilaiHafalan && catatanCache) {
+        const kode = `${nilaiBacaan}-${nilaiHafalan}`;
+        const catatanObj = catatanCache.find(item => item.kode === kode);
+
+        if (catatanObj) {
+            const catatanManual = catatanTextarea.value.split(" | Tambahan: ")[1] || '';
+            catatanTextarea.value = catatanObj.deskripsi;
+            if (catatanManual) {
+                catatanTextarea.value += ` | Tambahan: ${catatanManual}`;
+            }
+        }
+    } else {
+        catatanTextarea.value = '';
+    }
+}
 
 /**
  * [FUNGSI BARU] Mengosongkan semua field pencapaian.
@@ -91,33 +107,54 @@ function resetPencapaianFields() {
 }
 
 /**
- * [FUNGSI BARU] Mengisi form dengan data terakhir.
+ * [FUNGSI DIPERBAIKI] Mengisi form dengan data terakhir secara andal.
  */
 function prefillForm(record) {
+    // Kosongkan dulu semua field untuk memastikan kebersihan data
+    resetPencapaianFields();
+
+    // Mengisi data bacaan
     if (record.Jenjang_Bacaan) {
         jenjangSelect.value = record.Jenjang_Bacaan;
-        jenjangSelect.dispatchEvent(new Event('change'));
         
-        setTimeout(() => {
-            if (record.Jenjang_Bacaan.startsWith('Iqro')) {
-                const halamanInput = document.getElementById('halamanInput');
-                const barisInput = document.getElementById('barisInput');
-                if (halamanInput) halamanInput.value = record.Detail_Bacaan;
-                if (barisInput) barisInput.value = record.Sub_Detail;
-            } else if (record.Jenjang_Bacaan === "Al Qur'an") {
-                const suratBacaanSelect = document.getElementById('suratBacaanSelect');
-                const ayatBacaanInput = document.getElementById('ayatBacaanInput');
-                if (suratBacaanSelect) suratBacaanSelect.value = record.Detail_Bacaan;
-                if (ayatBacaanInput) ayatBacaanInput.value = record.Sub_Detail;
+        // Langsung buat dan isi field dinamis di sini, tanpa menunggu
+        if (record.Jenjang_Bacaan.startsWith('Iqro')) {
+            dynamicBacaanFields.innerHTML = `
+                <div class="form-group">
+                    <label for="halamanInput">Halaman</label>
+                    <input type="number" id="halamanInput" name="detailBacaan" value="${record.Detail_Bacaan || ''}" placeholder="1 - 31" min="1" max="31">
+                </div>
+                <div class="form-group">
+                    <label for="barisInput">Baris</label>
+                    <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" value="${record.Sub_Detail || ''}" placeholder="Contoh: 1-5">
+                </div>
+            `;
+        } else if (record.Jenjang_Bacaan === "Al Qur'an") {
+            dynamicBacaanFields.innerHTML = `
+                <div class="form-group">
+                    <label for="suratBacaanSelect">Surat</label>
+                    <select id="suratBacaanSelect" name="detailBacaan"></select>
+                </div>
+                <div class="form-group">
+                    <label for="ayatBacaanInput">Ayat</label>
+                    <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="ayatBacaanInput" name="subDetail" value="${record.Sub_Detail || ''}" placeholder="Contoh: 1-10">
+                </div>
+            `;
+            const suratBacaanSelect = document.getElementById('suratBacaanSelect');
+            if (bacaanSuratCache) {
+                populateSelect(suratBacaanSelect, bacaanSuratCache);
+                suratBacaanSelect.value = record.Detail_Bacaan || '';
             }
-        }, 100);
+        }
     }
 
+    // Mengisi data nilai dan hafalan
     if (record.Nilai_Bacaan) nilaiBacaanSelect.value = record.Nilai_Bacaan;
     if (record.Surat_Hafalan) hafalanSuratSelect.value = record.Surat_Hafalan;
     if (record.Ayat_Hafalan) hafalanAyatInput.value = record.Ayat_Hafalan;
     if (record.Nilai_Hafalan) nilaiHafalanSelect.value = record.Nilai_Hafalan;
 
+    // Panggil fungsi untuk mengisi catatan otomatis setelah semua nilai terisi
     generateCatatanOtomatis();
 }
 
@@ -157,13 +194,14 @@ async function initializeForm() {
 document.addEventListener('DOMContentLoaded', initializeForm);
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
+
 kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
     if (!selectedKelas || !siswaCache) return;
     const siswaDiKelas = siswaCache.filter(siswa => siswa.kelas.toString() === selectedKelas);
     populateSelect(siswaSelect, siswaDiKelas, 'id', 'nama');
     siswaSelect.disabled = false;
-    resetPencapaianFields(); // Kosongkan field saat ganti kelas
+    resetPencapaianFields();
 });
 
 /**
@@ -187,19 +225,22 @@ siswaSelect.addEventListener('change', async (e) => {
         console.log('Tidak ada data sebelumnya untuk siswa ini.');
     }
 });
+
+// Event listener ini untuk perubahan manual oleh guru
 jenjangSelect.addEventListener('change', (e) => {
     const selectedJenjang = e.target.value;
-    dynamicBacaanFields.innerHTML = ''; 
+    // Hanya proses jika bukan dipicu oleh prefill (yaitu jika kolom dinamis masih kosong)
+    if (dynamicBacaanFields.innerHTML !== '') return;
 
-    if (selectedJenjang && selectedJenjang.startsWith('Iqro')) {
+    if (selectedJenjang.startsWith('Iqro')) {
         dynamicBacaanFields.innerHTML = `
             <div class="form-group">
                 <label for="halamanInput">Halaman</label>
-                <input type="number" id="halamanInput" name="detailBacaan" placeholder="Contoh: 7" min="1" max="31">
+                <input type="number" id="halamanInput" name="detailBacaan" placeholder="1 - 31" min="1" max="31">
             </div>
             <div class="form-group">
                 <label for="barisInput">Baris</label>
-                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-4 atau 1-8">
+                <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="barisInput" name="subDetail" placeholder="Contoh: 1-5">
             </div>
         `;
     } else if (selectedJenjang === "Al Qur'an") {
