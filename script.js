@@ -7,12 +7,6 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzntREIN
 // URL Webhook n8n Anda yang sudah berjalan
 const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
-// KONFIGURASI PENTING - HARAP DIISI
-// =================================================================================
-const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_LATEST_APPS_SCRIPT_URL_HERE'; 
-const N8N_WEBHOOK_URL = 'URL_N8N_ANDA_YANG_SUDAH_BENAR';
-// =================================================================================
-
 // [CACHE] Variabel
 let siswaCache = null;
 let catatanCache = null;
@@ -49,6 +43,38 @@ function updateDynamicBacaanFields(jenjang, record = null) { const detailBacaanV
 function prefillForm(record) { resetPencapaianFields(); if (record.Timestamp) { const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); lastDepositInfo.textContent = `Setoran terakhir pada: ${tgl}`; lastDepositInfo.className = 'info-box success'; /* Ganti warna jadi hijau */ } updateDynamicBacaanFields(record.Jenjang_Bacaan, record); jenjangSelect.value = record.Jenjang_Bacaan || ''; nilaiBacaanSelect.value = record.Nilai_Bacaan || ''; hafalanSuratSelect.value = record.Surat_Hafalan || ''; hafalanAyatInput.value = record.Ayat_Hafalan || ''; nilaiHafalanSelect.value = record.Nilai_Hafalan || ''; generateCatatanOtomatis(); }
 async function initializeForm() { const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([ fetchData('hafalanSurat'), fetchData('bacaanSurat'), fetchData('allSiswa'), fetchData('refCatatan') ]); if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); } if (bacaanData) bacaanSuratCache = bacaanData; if (siswaData) siswaCache = siswaData; if (dataCatatan) catatanCache = dataCatatan; splashScreen.style.opacity = '0'; setTimeout(() => { splashScreen.style.display = 'none'; appContainer.classList.remove('hidden'); }, 500); }
 
+
+/**
+ * [FUNGSI DIPERBARUI] Inisialisasi dengan satu panggilan data saja.
+ */
+async function initializeForm() {
+    // 1. Lakukan satu panggilan untuk mengambil semua data awal
+    const initialData = await fetchData('getInitialData');
+
+    if (initialData) {
+        // 2. Bongkar paket data dan simpan ke cache masing-masing
+        hafalanSuratCache = initialData.hafalanSurat;
+        bacaanSuratCache = initialData.bacaanSurat;
+        siswaCache = initialData.allSiswa;
+        catatanCache = initialData.refCatatan;
+
+        // 3. Isi dropdown hafalan
+        if (hafalanSuratCache) {
+            populateSelect(hafalanSuratSelect, hafalanSuratCache);
+        }
+        
+        console.log('Semua cache berhasil dimuat dalam satu panggilan.');
+    } else {
+        alert("Gagal memuat data awal. Mohon refresh halaman.");
+    }
+    
+    // 4. Sembunyikan splash screen dan tampilkan aplikasi
+    splashScreen.style.opacity = '0';
+    setTimeout(() => {
+        splashScreen.style.display = 'none';
+        appContainer.classList.remove('hidden');
+    }, 500);
+}
 
 // ==================== EVENT LISTENERS ====================
 
