@@ -123,7 +123,7 @@ function prefillForm(record) {
     if (record.Timestamp) {
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         lastDepositInfo.textContent = `Setoran terakhir pada: ${tgl}`;
-        lastDepositInfo.className = 'info-box success';
+        lastDepositInfo.className = 'info-box success'; 
     }
     updateDynamicBacaanFields(record.Jenjang_Bacaan, record);
     jenjangSelect.value = record.Jenjang_Bacaan || '';
@@ -134,45 +134,25 @@ function prefillForm(record) {
     generateCatatanOtomatis();
 }
 
-/**
- * [FUNGSI DIPERBAIKI] Inisialisasi dengan satu panggilan data dan mengaktifkan form.
- */
 async function initializeForm() {
-    // Tampilkan pesan loading di dropdown kelas
-    const placeholderAwal = document.createElement('option');
-    placeholderAwal.textContent = 'Memuat data awal...';
-    kelasSelect.add(placeholderAwal, 1);
+    const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
+        fetchData('hafalanSurat'),
+        fetchData('bacaanSurat'),
+        fetchData('allSiswa'),
+        fetchData('refCatatan')
+    ]);
 
-    const initialData = await fetchData('getInitialData');
+    if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); }
+    if (bacaanData) bacaanSuratCache = bacaanData;
+    if (siswaData) siswaCache = siswaData;
+    if (dataCatatan) catatanCache = dataCatatan;
 
-    // Hapus pesan loading
-    kelasSelect.remove(placeholderAwal);
-
-    if (initialData) {
-        hafalanSuratCache = initialData.hafalanSurat;
-        bacaanSuratCache = initialData.bacaanSurat;
-        siswaCache = initialData.allSiswa;
-        catatanCache = initialData.refCatatan;
-
-        if (hafalanSuratCache) {
-            populateSelect(hafalanSuratSelect, hafalanSuratCache);
-        }
-        
-        // [PERBAIKAN] Aktifkan dropdown kelas setelah semua cache siap
-        kelasSelect.disabled = false;
-        console.log('Semua cache berhasil dimuat dalam satu panggilan.');
-    } else {
-        alert("Gagal memuat data awal. Mohon refresh halaman.");
-    }
-    
-    // Sembunyikan splash screen dan tampilkan aplikasi
     splashScreen.style.opacity = '0';
     setTimeout(() => {
         splashScreen.style.display = 'none';
         appContainer.classList.remove('hidden');
     }, 500);
 }
-
 
 // ==================== EVENT LISTENERS ====================
 
@@ -192,11 +172,15 @@ kelasSelect.addEventListener('change', (e) => {
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
+
     resetPencapaianFields();
+    
     lastDepositInfo.textContent = 'Memuat data terakhir...';
     lastDepositInfo.className = 'info-box loading';
     lastDepositInfo.classList.remove('hidden');
+    
     const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
+    
     if (lastRecord) {
         prefillForm(lastRecord);
     } else {
