@@ -134,6 +134,9 @@ function prefillForm(record) {
     generateCatatanOtomatis();
 }
 
+/**
+ * [FUNGSI DIPERBAIKI] Inisialisasi dengan panggilan terpisah dan mengaktifkan form.
+ */
 async function initializeForm() {
     const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
         fetchData('hafalanSurat'),
@@ -142,11 +145,18 @@ async function initializeForm() {
         fetchData('refCatatan')
     ]);
 
+    // Proses dan simpan data ke cache
     if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); }
     if (bacaanData) bacaanSuratCache = bacaanData;
     if (siswaData) siswaCache = siswaData;
     if (dataCatatan) catatanCache = dataCatatan;
 
+    // [PERBAIKAN KUNCI] Aktifkan dropdown kelas setelah data siap
+    if (siswaCache) {
+        kelasSelect.disabled = false;
+    }
+
+    // Sembunyikan splash screen dan tampilkan aplikasi
     splashScreen.style.opacity = '0';
     setTimeout(() => {
         splashScreen.style.display = 'none';
@@ -235,4 +245,3 @@ form.addEventListener('submit', async (e) => {
         setTimeout(() => { statusMessage.style.display = 'none'; }, 6000);
     }
 });
-
