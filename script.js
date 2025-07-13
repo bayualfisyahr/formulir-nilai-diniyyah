@@ -1,14 +1,12 @@
 // =================================================================================
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
-// URL Web App BARU dari Google Apps Script yang sudah Anda deploy
+// Ganti dengan URL Web App Google Apps Script Anda yang sesuai dengan versi SEBELUM optimasi
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrC4SFavYmzYi84FH0ZxT_BSRXyHtdaj5d-YzsjnAsUBlazbf1UWxJyejMPujKFV38/exec'; 
 
-// URL Webhook n8n Anda yang sudah berjalan
-//const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
 
-// [CACHE] Variabel
+// [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
 let siswaCache = null;
 let catatanCache = null;
 let hafalanSuratCache = null;
@@ -35,6 +33,12 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
+/**
+ * Mengambil data dari Google Apps Script.
+ * @param {string} request - Tipe data yang diminta.
+ * @param {object} params - Parameter tambahan.
+ * @returns {Promise<Array|null>} Data yang diminta atau null jika gagal.
+ */
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
@@ -57,6 +61,9 @@ async function fetchData(request, params = {}) {
     }
 }
 
+/**
+ * Mengisi elemen <select> dengan data.
+ */
 function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     selectElement.innerHTML = `<option value="" disabled selected>Pilih...</option>`;
     if (!data || data.length === 0) {
@@ -76,6 +83,9 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     });
 }
 
+/**
+ * Membuat atau menghapus catatan otomatis berdasarkan nilai.
+ */
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
@@ -90,6 +100,9 @@ function generateCatatanOtomatis() {
     }
 }
 
+/**
+ * Mengosongkan semua field pencapaian untuk input baru.
+ */
 function resetPencapaianFields() {
     jenjangSelect.value = '';
     dynamicBacaanFields.innerHTML = '';
@@ -102,6 +115,9 @@ function resetPencapaianFields() {
     lastDepositInfo.textContent = '';
 }
 
+/**
+ * Membuat atau memperbarui kolom dinamis (Halaman/Ayat).
+ */
 function updateDynamicBacaanFields(jenjang, record = null) {
     const detailBacaanValue = record ? (record.Detail_Bacaan || '') : '';
     const subDetailValue = record ? (record.Sub_Detail || '') : '';
@@ -118,6 +134,9 @@ function updateDynamicBacaanFields(jenjang, record = null) {
     }
 }
 
+/**
+ * Mengisi form dengan data terakhir secara andal.
+ */
 function prefillForm(record) {
     resetPencapaianFields();
     if (record.Timestamp) {
@@ -209,42 +228,31 @@ form.addEventListener('submit', async (e) => {
     buttonText.style.display = 'none';
     submitLoader.style.display = 'block';
     statusMessage.style.display = 'none';
-
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-    
     const selectedSiswaOption = siswaSelect.options[siswaSelect.selectedIndex];
     data.idSiswa = selectedSiswaOption.value;
     data.namaSiswa = selectedSiswaOption.text;
-    
     try {
-        // [PERUBAHAN] Target URL sekarang adalah GOOGLE_APPS_SCRIPT_URL
         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
             method: 'POST',
-            // Kita harus mengirim data sebagai string, bukan JSON
             body: JSON.stringify(data),
-            // Menambahkan header ini terkadang membantu
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8',
             },
         });
-
         const result = await response.json();
-
         if (result.status !== 'success') {
             throw new Error(result.message || 'Terjadi kesalahan pada server Google.');
         }
-
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
         form.reset();
-        // ... sisa kode reset form sama seperti sebelumnya ...
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
         catatanTextarea.value = '';
         lastDepositInfo.classList.add('hidden');
-
     } catch (error) {
         console.error('Submit error:', error);
         statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
