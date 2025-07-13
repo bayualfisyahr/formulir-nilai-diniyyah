@@ -5,7 +5,7 @@
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwY7ihSKIaUKTvzHzBBLWQTJx9OZ6HLfPnUgnSxO5uSBuN2qdRcBj9OrGvB33Unb1V/exec'; 
 
 // URL Webhook n8n Anda yang sudah berjalan
-const N8N_WEBHOOK_URL = 'https://bayualfi.app.n8n.cloud/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
+const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
 
 // [CACHE] Variabel
