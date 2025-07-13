@@ -2,11 +2,8 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybMa34GGhzGyRSUgPWuEy7wXvJbf2ii2A93S1DgXzBqCae4Rn0CXNEMq40yb9D6r6R/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUAbNIM7i2BbUUz0kMgXzmvmu4NDTzXnpln18GOCocK5CFVN7OkID-Mc6nQhOrayFB/exec'; 
 
-// Ganti dengan URL Webhook n8n Anda (jika masih digunakan untuk submit, jika tidak, abaikan)
-const N8N_WEBHOOK_URL = 'URL_N8N_ANDA_YANG_SUDAH_BENAR';
-// =================================================================================
 
 // [CACHE] Variabel
 let siswaCache = null;
