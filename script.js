@@ -2,10 +2,10 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // URL Web App BARU dari Google Apps Script yang sudah Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwY7ihSKIaUKTvzHzBBLWQTJx9OZ6HLfPnUgnSxO5uSBuN2qdRcBj9OrGvB33Unb1V/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrC4SFavYmzYi84FH0ZxT_BSRXyHtdaj5d-YzsjnAsUBlazbf1UWxJyejMPujKFV38/exec'; 
 
 // URL Webhook n8n Anda yang sudah berjalan
-const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
+//const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/15a69324-bbc0-4b25-82cb-2f9ef519b8ea';
 // =================================================================================
 
 // [CACHE] Variabel
@@ -209,30 +209,42 @@ form.addEventListener('submit', async (e) => {
     buttonText.style.display = 'none';
     submitLoader.style.display = 'block';
     statusMessage.style.display = 'none';
+
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
+    
     const selectedSiswaOption = siswaSelect.options[siswaSelect.selectedIndex];
     data.idSiswa = selectedSiswaOption.value;
     data.namaSiswa = selectedSiswaOption.text;
+    
     try {
-        const response = await fetch(N8N_WEBHOOK_URL, {
+        // [PERUBAHAN] Target URL sekarang adalah GOOGLE_APPS_SCRIPT_URL
+        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            // Kita harus mengirim data sebagai string, bukan JSON
             body: JSON.stringify(data),
+            // Menambahkan header ini terkadang membantu
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
         });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Terjadi kesalahan pada server n8n.');
-        }
+
         const result = await response.json();
+
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Terjadi kesalahan pada server Google.');
+        }
+
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
         form.reset();
+        // ... sisa kode reset form sama seperti sebelumnya ...
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
         catatanTextarea.value = '';
         lastDepositInfo.classList.add('hidden');
+
     } catch (error) {
         console.error('Submit error:', error);
         statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
