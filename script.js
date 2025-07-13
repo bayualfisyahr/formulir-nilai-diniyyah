@@ -1,12 +1,14 @@
 // =================================================================================
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
-// Ganti dengan URL Web App Google Apps Script Anda yang sesuai dengan versi SEBELUM optimasi
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrC4SFavYmzYi84FH0ZxT_BSRXyHtdaj5d-YzsjnAsUBlazbf1UWxJyejMPujKFV38/exec'; 
+// Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybMa34GGhzGyRSUgPWuEy7wXvJbf2ii2A93S1DgXzBqCae4Rn0CXNEMq40yb9D6r6R/exec'; 
 
+// Ganti dengan URL Webhook n8n Anda (jika masih digunakan untuk submit, jika tidak, abaikan)
+const N8N_WEBHOOK_URL = 'URL_N8N_ANDA_YANG_SUDAH_BENAR';
 // =================================================================================
 
-// [CACHE] Variabel untuk menyimpan data agar aplikasi cepat
+// [CACHE] Variabel
 let siswaCache = null;
 let catatanCache = null;
 let hafalanSuratCache = null;
@@ -33,12 +35,6 @@ const statusMessage = document.getElementById('statusMessage');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
-/**
- * Mengambil data dari Google Apps Script.
- * @param {string} request - Tipe data yang diminta.
- * @param {object} params - Parameter tambahan.
- * @returns {Promise<Array|null>} Data yang diminta atau null jika gagal.
- */
 async function fetchData(request, params = {}) {
     const url = new URL(GOOGLE_APPS_SCRIPT_URL);
     url.searchParams.append('request', request);
@@ -61,9 +57,6 @@ async function fetchData(request, params = {}) {
     }
 }
 
-/**
- * Mengisi elemen <select> dengan data.
- */
 function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     selectElement.innerHTML = `<option value="" disabled selected>Pilih...</option>`;
     if (!data || data.length === 0) {
@@ -83,9 +76,6 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     });
 }
 
-/**
- * Membuat atau menghapus catatan otomatis berdasarkan nilai.
- */
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
@@ -100,9 +90,6 @@ function generateCatatanOtomatis() {
     }
 }
 
-/**
- * Mengosongkan semua field pencapaian untuk input baru.
- */
 function resetPencapaianFields() {
     jenjangSelect.value = '';
     dynamicBacaanFields.innerHTML = '';
@@ -115,9 +102,6 @@ function resetPencapaianFields() {
     lastDepositInfo.textContent = '';
 }
 
-/**
- * Membuat atau memperbarui kolom dinamis (Halaman/Ayat).
- */
 function updateDynamicBacaanFields(jenjang, record = null) {
     const detailBacaanValue = record ? (record.Detail_Bacaan || '') : '';
     const subDetailValue = record ? (record.Sub_Detail || '') : '';
@@ -134,9 +118,6 @@ function updateDynamicBacaanFields(jenjang, record = null) {
     }
 }
 
-/**
- * Mengisi form dengan data terakhir secara andal.
- */
 function prefillForm(record) {
     resetPencapaianFields();
     if (record.Timestamp) {
@@ -153,9 +134,6 @@ function prefillForm(record) {
     generateCatatanOtomatis();
 }
 
-/**
- * [FUNGSI DIPERBAIKI] Inisialisasi dengan panggilan terpisah dan mengaktifkan form.
- */
 async function initializeForm() {
     const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
         fetchData('hafalanSurat'),
@@ -164,18 +142,15 @@ async function initializeForm() {
         fetchData('refCatatan')
     ]);
 
-    // Proses dan simpan data ke cache
     if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); }
     if (bacaanData) bacaanSuratCache = bacaanData;
     if (siswaData) siswaCache = siswaData;
     if (dataCatatan) catatanCache = dataCatatan;
 
-    // [PERBAIKAN KUNCI] Aktifkan dropdown kelas setelah data siap
     if (siswaCache) {
         kelasSelect.disabled = false;
     }
 
-    // Sembunyikan splash screen dan tampilkan aplikasi
     splashScreen.style.opacity = '0';
     setTimeout(() => {
         splashScreen.style.display = 'none';
@@ -201,15 +176,11 @@ kelasSelect.addEventListener('change', (e) => {
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
-
     resetPencapaianFields();
-    
     lastDepositInfo.textContent = 'Memuat data terakhir...';
     lastDepositInfo.className = 'info-box loading';
     lastDepositInfo.classList.remove('hidden');
-    
     const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
-    
     if (lastRecord) {
         prefillForm(lastRecord);
     } else {
@@ -237,9 +208,7 @@ form.addEventListener('submit', async (e) => {
         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         });
         const result = await response.json();
         if (result.status !== 'success') {
