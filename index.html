@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Penilaian</title>
+    
+    <!-- Favicon (Ikon di Tab Browser) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23047857' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><rect x='8' y='2' width='8' height='4' rx='1' ry='1'/><path d='m9 14 2 2 4-4'/></svg>">
-    <title>Form Penilaian</title>
+    
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,36 +15,30 @@
 </head>
 <body>
 
+    <!-- Splash Screen -->
     <div id="splash-screen">
         <div class="splash-loader"></div>
     </div>
 
+    <!-- Konten Utama Aplikasi (Awalnya tersembunyi) -->
     <div id="app-container" class="hidden">
         <div class="container">
             <header>
                 <h1>Penilaian Tahsin dan Tahfizh Al Qur'an</h1>
+                <p>SDIT Al Maahyah</p>
             </header>
             <main>
                 <form id="formInputNilai">
                     <!-- Data Siswa -->
                     <fieldset>
                         <legend>
-                            <!-- Ikon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                              <circle cx="12" cy="7" r="4"></circle></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             Data Siswa
                         </legend>
                         <div class="form-group">
                             <label for="kelasSelect">Kelas</label>
-                            <select id="kelasSelect" name="kelas" required>
-                                <option value="" disabled selected>Pilih Kelas...</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
+                            <select id="kelasSelect" name="kelas" required disabled>
+                                <option value="" disabled selected>Memuat data...</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -51,13 +48,13 @@
                             </select>
                         </div>
                         <!-- Info Setoran Terakhir -->
-                        <div id="last-deposit-info" class="info-box hidden"></div>
+                        <div id="last-bacaan-info" class="info-box hidden"></div>
+                        <div id="last-hafalan-info" class="info-box hidden"></div>
                     </fieldset>
 
                     <!-- Penilaian Bacaan -->
                     <fieldset>
                         <legend>
-                             <!-- Ikon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                             Penilaian Bacaan
                         </legend>
@@ -79,9 +76,9 @@
                             <label for="nilaiBacaanSelect">Nilai Bacaan</label>
                             <select id="nilaiBacaanSelect" name="nilaiBacaan">
                                 <option value="" disabled selected>Pilih Nilai...</option>
-                                <option value="A">A (Lancar)</option>
-                                <option value="B">B (Perlu Ditingkatkan)</option>
-                                <option value="C">C (Ulang Lagi)</option>
+                                <option value="A">A (Lanjut)</option>
+                                <option value="B">B (Lancarkan Lagi)</option>
+                                <option value="C">C (Ulang)</option>
                             </select>
                         </div>
                     </fieldset>
@@ -89,7 +86,6 @@
                     <!-- Penilaian Hafalan -->
                     <fieldset>
                         <legend>
-                             <!-- Ikon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                             Penilaian Hafalan
                         </legend>
@@ -101,15 +97,15 @@
                         </div>
                         <div class="form-group">
                             <label for="hafalanAyatInput">Ayat</label>
-                            <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="hafalanAyatInput" name="ayatHafalan" placeholder="Misal: 7-12">
+                            <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="hafalanAyatInput" name="ayatHafalan" placeholder="Contoh: 1-7">
                         </div>
                         <div class="form-group">
                             <label for="nilaiHafalanSelect">Nilai Hafalan</label>
                             <select id="nilaiHafalanSelect" name="nilaiHafalan">
                                 <option value="" disabled selected>Pilih Nilai...</option>
-                                <option value="A">A (Lancar)</option>
-                                <option value="B">B (Perlu Ditingkatkan)</option>
-                                <option value="C">C (Ulang Lagi)</option>
+                                <option value="A">A (Lanjut)</option>
+                                <option value="B">B (Lancarkan Lagi)</option>
+                                <option value="C">C (Ulang)</option>
                             </select>
                         </div>
                     </fieldset>
@@ -117,7 +113,6 @@
                     <!-- Catatan Guru -->
                     <fieldset>
                         <legend>
-                             <!-- Ikon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                             Catatan Guru
                         </legend>
@@ -125,8 +120,6 @@
                             <label for="catatanTextarea">Keterangan</label>
                             <textarea id="catatanTextarea" name="catatanFinal" rows="6" placeholder="Catatan otomatis akan muncul di sini..."></textarea>
                         </div>
-                        <div id="last-bacaan-info" class="info-box hidden"></div>
-                        <div id="last-hafalan-info" class="info-box hidden"></div>
                     </fieldset>
 
                     <button type="submit" id="submitButton">
