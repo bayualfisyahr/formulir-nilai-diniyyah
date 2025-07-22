@@ -232,22 +232,23 @@ kelasSelect.addEventListener('change', (e) => {
     }
 });
 
+// GANTI KESELURUHAN BLOK INI
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
 
     resetPencapaianFields();
-    
+
+    // [FIX] Tampilkan kembali status loading ringkasan
+    overallStatusInfo.style.display = 'block';
     overallStatusInfo.textContent = 'Memuat data terakhir...';
     overallStatusInfo.className = 'info-box loading';
-    overallStatusInfo.classList.remove('hidden');
 
-    // [UBAH] Sembunyikan box detail secara langsung
     lastBacaanInfo.style.display = 'none';
     lastHafalanInfo.style.display = 'none';
-    
+
     const lastDeposits = await fetchData('getLastDeposits', { studentId: studentId });
-    
+
     if (lastDeposits && (lastDeposits.lastBacaan || lastDeposits.lastHafalan)) {
         overallStatusInfo.textContent = 'Data terakhir ditemukan!';
         overallStatusInfo.className = 'info-box success';
@@ -259,31 +260,23 @@ siswaSelect.addEventListener('change', async (e) => {
     if (lastDeposits && lastDeposits.lastBacaan) {
         const record = lastDeposits.lastBacaan;
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
-            weekday: 'long',
-            day: '2-digit', 
-            month: '2-digit', 
-            year: '2-digit'
+            weekday: 'long', day: '2-digit', month: '2-digit', year: '2-digit'
         });
         lastBacaanInfo.textContent = `Terakhir setor bacaan pada: ${tgl}`;
         lastBacaanInfo.className = 'info-box success';
-        // [UBAH] Tampilkan box detail secara langsung
         lastBacaanInfo.style.display = 'block';
     }
 
     if (lastDeposits && lastDeposits.lastHafalan) {
         const record = lastDeposits.lastHafalan;
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
-            weekday: 'long',
-            day: '2-digit', 
-            month: '2-digit', 
-            year: '2-digit'
+            weekday: 'long', day: '2-digit', month: '2-digit', year: '2-digit'
         });
         lastHafalanInfo.textContent = `Terakhir setor hafalan pada: ${tgl}`;
         lastHafalanInfo.className = 'info-box success';
-        // [UBAH] Tampilkan box detail secara langsung
         lastHafalanInfo.style.display = 'block';
     }
-    
+
     if (lastDeposits && lastDeposits.lastBacaan) {
         prefillForm(lastDeposits.lastBacaan);
     } else if (lastDeposits && lastDeposits.lastHafalan) {
