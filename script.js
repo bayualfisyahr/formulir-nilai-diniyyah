@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzj2sVarwoDbi4JIl3SziHCkgb0RvRvhfuUrMf640xdklO_OebMqPtmknONWMSuLzjB/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRc9JzxTfSYOuAfKFTljSxcXqwtJV07T5tcwRamQj-X2wehhY6PnRDgLs1B9yHJdts/exec'; 
 // =================================================================================
 
 // [CACHE] Variabel
@@ -127,13 +127,35 @@ function updateDynamicBacaanFields(jenjang, record = null) {
     }
 }
 
+function prefillForm(record) {
+    resetPencapaianFields();
+    
+    updateDynamicBacaanFields(record.Jenjang_Bacaan, record);
+    
+    jenjangSelect.value = record.Jenjang_Bacaan || '';
+    nilaiBacaanSelect.value = record.Nilai_Bacaan || '';
+    hafalanSuratSelect.value = record.Surat_Hafalan || '';
+    hafalanAyatInput.value = record.Ayat_Hafalan || '';
+    nilaiHafalanSelect.value = record.Nilai_Hafalan || '';
+
+    generateCatatanOtomatis();
+}
+
 /**
- * [DIPERBARUI] Inisialisasi dengan panggilan data tunggal yang efisien.
+ * [FUNGSI DIPERBARUI TOTAL] Inisialisasi dengan panggilan data tunggal dan penanganan error yang lebih baik.
  */
 async function initializeForm() {
     const initialData = await fetchData('getInitialData');
 
-    if (initialData) {
+    // Sembunyikan splash screen setelah data (atau error) diterima
+    splashScreen.style.opacity = '0';
+    setTimeout(() => {
+        splashScreen.style.display = 'none';
+        appContainer.classList.remove('hidden');
+    }, 500);
+
+    if (initialData && initialData.allSiswa && initialData.allSiswa.length > 0) {
+        // Jika semua data berhasil dimuat
         hafalanSuratCache = initialData.hafalanSurat;
         bacaanSuratCache = initialData.bacaanSurat;
         siswaCache = initialData.allSiswa;
@@ -141,19 +163,18 @@ async function initializeForm() {
 
         if (hafalanSuratCache) populateSelect(hafalanSuratSelect, hafalanSuratCache);
         
-        // [PERBAIKAN KUNCI] Aktifkan dropdown kelas setelah semua cache siap
+        // Aktifkan dropdown kelas dengan opsi yang benar
         kelasSelect.innerHTML = `<option value="" disabled selected>Pilih Kelas...</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>`;
         kelasSelect.disabled = false;
         console.log('Semua cache berhasil dimuat.');
     } else {
-        kelasSelect.innerHTML = `<option value="">Gagal memuat data</option>`;
+        // Jika data gagal dimuat, berikan pesan error yang jelas
+        kelasSelect.innerHTML = `<option value="">Gagal memuat data siswa</option>`;
+        siswaSelect.innerHTML = `<option value="">Periksa koneksi/database</option>`;
+        kelasSelect.disabled = true;
+        siswaSelect.disabled = true;
+        console.error("Gagal memuat data awal atau data siswa kosong.");
     }
-    
-    splashScreen.style.opacity = '0';
-    setTimeout(() => {
-        splashScreen.style.display = 'none';
-        appContainer.classList.remove('hidden');
-    }, 500);
 }
 
 // ==================== EVENT LISTENERS ====================
@@ -164,11 +185,23 @@ nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
 
 kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
-    if (!selectedKelas || !siswaCache) return;
-    const siswaDiKelas = siswaCache.filter(siswa => siswa.kelas.toString() === selectedKelas);
-    populateSelect(siswaSelect, siswaDiKelas, 'id', 'nama');
-    siswaSelect.disabled = false;
     resetPencapaianFields();
+
+    if (!selectedKelas || !siswaCache) {
+        siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
+        siswaSelect.disabled = true;
+        return;
+    }
+    
+    const siswaDiKelas = siswaCache.filter(siswa => siswa.kelas.toString() === selectedKelas);
+    
+    if (siswaDiKelas.length > 0) {
+        populateSelect(siswaSelect, siswaDiKelas, 'id', 'nama');
+        siswaSelect.disabled = false;
+    } else {
+        siswaSelect.innerHTML = `<option value="">Tidak ada siswa di kelas ini</option>`;
+        siswaSelect.disabled = true;
+    }
 });
 
 siswaSelect.addEventListener('change', async (e) => {
@@ -204,6 +237,13 @@ siswaSelect.addEventListener('change', async (e) => {
     } else {
         lastHafalanInfo.textContent = 'Tidak ada data setoran hafalan terakhir.';
         lastHafalanInfo.className = 'info-box warning';
+    }
+    
+    // Prefill form dengan data terakhir yang paling relevan (misalnya bacaan)
+    if (lastDeposits && lastDeposits.lastBacaan) {
+        prefillForm(lastDeposits.lastBacaan);
+    } else if (lastDeposits && lastDeposits.lastHafalan) {
+        prefillForm(lastDeposits.lastHafalan);
     }
 });
 
