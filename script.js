@@ -214,25 +214,22 @@ kelasSelect.addEventListener('change', (e) => {
     }
 });
 
+// GANTI KESELURUHAN FUNGSI INI DENGAN VERSI FINAL
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
 
     resetPencapaianFields();
-
-    // 1. Tampilkan status loading ringkasan
+    
     overallStatusInfo.textContent = 'Memuat data terakhir...';
     overallStatusInfo.className = 'info-box loading';
     overallStatusInfo.classList.remove('hidden');
 
-    // Sembunyikan box detail terlebih dahulu
     lastBacaanInfo.classList.add('hidden');
     lastHafalanInfo.classList.add('hidden');
-
-    // 2. Ambil data dari server
+    
     const lastDeposits = await fetchData('getLastDeposits', { studentId: studentId });
-
-    // 3. Update status ringkasan berdasarkan hasil
+    
     if (lastDeposits && (lastDeposits.lastBacaan || lastDeposits.lastHafalan)) {
         overallStatusInfo.textContent = 'Data terakhir ditemukan!';
         overallStatusInfo.className = 'info-box success';
@@ -241,24 +238,34 @@ siswaSelect.addEventListener('change', async (e) => {
         overallStatusInfo.className = 'info-box warning';
     }
 
-    // 4. Tampilkan dan isi info detail di dalam setiap fieldset
     if (lastDeposits && lastDeposits.lastBacaan) {
         const record = lastDeposits.lastBacaan;
-        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-        lastBacaanInfo.textContent = `Terakhir (${tgl}): ${record.Jenjang_Bacaan} ${record.Detail_Bacaan || ''} baris ${record.Sub_Detail || ''}`;
+        // [PENYESUAIAN FINAL] Menambahkan nama hari
+        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: '2-digit', 
+            month: '2-digit', 
+            year: '2-digit'
+        });
+        lastBacaanInfo.textContent = `Terakhir setor bacaan pada: ${tgl}`;
         lastBacaanInfo.className = 'info-box success';
         lastBacaanInfo.classList.remove('hidden');
     }
 
     if (lastDeposits && lastDeposits.lastHafalan) {
         const record = lastDeposits.lastHafalan;
-        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-        lastHafalanInfo.textContent = `Terakhir (${tgl}): QS. ${record.Surat_Hafalan} ayat ${record.Ayat_Hafalan || ''}`;
+        // [PENYESUAIAN FINAL] Menambahkan nama hari
+        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: '2-digit', 
+            month: '2-digit', 
+            year: '2-digit'
+        });
+        lastHafalanInfo.textContent = `Terakhir setor hafalan pada: ${tgl}`;
         lastHafalanInfo.className = 'info-box success';
         lastHafalanInfo.classList.remove('hidden');
     }
-
-    // 5. Prefill form dengan data terakhir
+    
     if (lastDeposits && lastDeposits.lastBacaan) {
         prefillForm(lastDeposits.lastBacaan);
     } else if (lastDeposits && lastDeposits.lastHafalan) {
