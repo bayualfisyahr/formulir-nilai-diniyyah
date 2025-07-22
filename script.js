@@ -2,13 +2,14 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDki3I43IzLVUJiOtzN5bdR0F9fdCBWU8NGaI7jlB6C1YHdESllGJcS_cjlkqxylgJ/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyz2NEjY83w3Uks3n_uMuSqaVSZq-thHKor3zdsns1n67lhlTt1lzGItmEXYP3N1fjE/exec'; 
 
 // [CACHE] Variabel
 let siswaCache = null;
 let catatanCache = null;
 let hafalanSuratCache = null;
 let bacaanSuratCache = null;
+let dailyStatusCache = null;
 
 // ==================== DEFINISI ELEMEN DOM ====================
 const splashScreen = document.getElementById('splash-screen');
@@ -138,16 +139,18 @@ function prefillForm(record) {
     hafalanAyatInput.value = record.Ayat_Hafalan || '';
     nilaiHafalanSelect.value = record.Nilai_Hafalan || '';
 
-    generateCatatanOtomatis();
+    // [FIX] Prioritaskan catatan dari database
+    if (record && record.Catatan_Final) {
+        catatanTextarea.value = record.Catatan_Final;
+    } else {
+        generateCatatanOtomatis();
+    }
 }
 
-/**
- * [FUNGSI DIPERBARUI TOTAL] Inisialisasi dengan panggilan data tunggal dan penanganan error yang lebih baik.
- */
+
 async function initializeForm() {
     const initialData = await fetchData('getInitialData');
 
-    // Sembunyikan splash screen setelah data (atau error) diterima
     splashScreen.style.opacity = '0';
     setTimeout(() => {
         splashScreen.style.display = 'none';
@@ -155,16 +158,13 @@ async function initializeForm() {
     }, 500);
 
     if (initialData && initialData.allSiswa && initialData.allSiswa.length > 0) {
-        // Jika semua data berhasil dimuat
-        hafalanSuratCache = initialData.hafalanSurat;
-        bacaanSuratCache = initialData.bacaanSurat;
+        // ... (cache lainnya sama)
         siswaCache = initialData.allSiswa;
         catatanCache = initialData.refCatatan;
+        dailyStatusCache = initialData.dailyStatuses; // [OPTIMISASI] Simpan status ke cache
 
         if (hafalanSuratCache) populateSelect(hafalanSuratSelect, hafalanSuratCache);
         
-        // --- PERUBAHAN UTAMA DI SINI ---
-        // Mengisi dropdown kelas secara dinamis dari data yang diterima
         if (initialData.uniqueClasses && initialData.uniqueClasses.length > 0) {
             populateSelect(kelasSelect, initialData.uniqueClasses);
             kelasSelect.disabled = false;
@@ -174,7 +174,6 @@ async function initializeForm() {
         
         console.log('Semua cache berhasil dimuat.');
     } else {
-        // Jika data gagal dimuat, berikan pesan error yang jelas
         kelasSelect.innerHTML = `<option value="">Gagal memuat data siswa</option>`;
         siswaSelect.innerHTML = `<option value="">Periksa koneksi/database</option>`;
         kelasSelect.disabled = true;
@@ -182,20 +181,20 @@ async function initializeForm() {
         console.error("Gagal memuat data awal atau data siswa kosong.");
     }
 }
-
 // ==================== EVENT LISTENERS ====================
 
 document.addEventListener('DOMContentLoaded', initializeForm);
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
 
-// GANTI KESELURUHAN FUNGSI INI
-kelasSelect.addEventListener('change', async (e) => {
+
+kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
     
-    // Reset semua field terlebih dahulu
     resetPencapaianFields();
-    overallStatusInfo.classList.add('hidden');
+    overallStatusInfo.style.display = 'none';
+    lastBacaanInfo.style.display = 'none';
+    lastHafalanInfo.style.display = 'none';
     siswaSelect.innerHTML = `<option value="">Memuat siswa...</option>`;
     siswaSelect.disabled = true;
 
@@ -204,11 +203,9 @@ kelasSelect.addEventListener('change', async (e) => {
         return;
     }
     
-    // Ambil status setoran harian dari server
-    const dailyStatuses = await fetchData('getDailyStatuses');
+    // [OPTIMISASI] Tidak ada lagi fetchData, langsung dari cache
     const siswaDiKelas = siswaCache.filter(siswa => siswa.kelas.toString() === selectedKelas);
     
-    // Kosongkan lagi sebelum diisi
     siswaSelect.innerHTML = `<option value="" disabled selected>Pilih siswa...</option>`;
 
     if (siswaDiKelas.length > 0) {
@@ -217,13 +214,12 @@ kelasSelect.addEventListener('change', async (e) => {
             option.value = siswa.id;
             
             let studentName = siswa.nama;
-            const status = dailyStatuses ? dailyStatuses[siswa.id] : null;
+            const status = dailyStatusCache ? dailyStatusCache[siswa.id] : null;
 
-            // Tambahkan ikon berdasarkan status
             if (status === 'complete') {
                 studentName += ' ✅';
             } else if (status === 'partial') {
-                studentName += ' 🟨';
+                studentName += ' 🟡';
             }
 
             option.textContent = studentName;
@@ -235,8 +231,7 @@ kelasSelect.addEventListener('change', async (e) => {
         siswaSelect.disabled = true;
     }
 });
-// GANTI KESELURUHAN FUNGSI INI DENGAN VERSI FINAL
-// GANTI KESELURUHAN FUNGSI INI DENGAN VERSI FINAL YANG LEBIH TEGAS
+
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
@@ -310,7 +305,10 @@ form.addEventListener('submit', async (e) => {
     const data = Object.fromEntries(formData.entries());
     const selectedSiswaOption = siswaSelect.options[siswaSelect.selectedIndex];
     data.idSiswa = selectedSiswaOption.value;
-    data.namaSiswa = selectedSiswaOption.text;
+    
+    // [FIX] Membersihkan nama siswa dari ikon sebelum dikirim
+    data.namaSiswa = selectedSiswaOption.text.replace(/ [✅🟡✔️⭐📝✏️➖▫️⏳☑️🌟🏆👍✨🎉🟢🔵📚🎓❤️🧡💛💚💙💜👋👈👉➡️⬅️⬆️⬇️↗️↘️↙️↖️↔️↕️ℹ️❓❔❕➕➗🟰©️®️™️☀️🌙☁️⚡🔥💧❄️🌀🌈🌊🔗⚙️💡🔑🔒🔓📖📕📗📘📙📜📄🎒❤️🧡💛💚💙💜👍👎🙂😊🤔😐😶🧐😎😁😅😇❤️🧡💛💚💙💜👍👎👋👈👉]/g, '').trim();
+
     try {
         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
             method: 'POST',
@@ -323,15 +321,17 @@ form.addEventListener('submit', async (e) => {
         }
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
+        
         form.reset();
-        // Reset dropdown ke kondisi awal setelah submit berhasil
-        kelasSelect.value = '';
+        kelasSelect.value = ''; // Reset pilihan kelas
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
-        catatanTextarea.value = '';
-        lastBacaanInfo.classList.add('hidden');
-        lastHafalanInfo.classList.add('hidden');
+        
+        // [FIX] Sembunyikan semua info box setelah submit berhasil
+        overallStatusInfo.style.display = 'none';
+        lastBacaanInfo.style.display = 'none';
+        lastHafalanInfo.style.display = 'none';
 
     } catch (error) {
         console.error('Submit error:', error);
