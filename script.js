@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5Qe7bgtkDK_4ijQxvkhXM5gPzYoxRnXE5Sal2595aoZxfSXh_DnyaQfLkM2yTge76/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJKxb1cg1u6SnXlw6MuXSXGlxTxpCe3zfoBqAN_8elX6jg1m8gKZ-SUq3P1Q29sS1U/exec'; 
 
 // [CACHE] Variabel
 let siswaCache = null;
