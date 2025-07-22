@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJKxb1cg1u6SnXlw6MuXSXGlxTxpCe3zfoBqAN_8elX6jg1m8gKZ-SUq3P1Q29sS1U/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDki3I43IzLVUJiOtzN5bdR0F9fdCBWU8NGaI7jlB6C1YHdESllGJcS_cjlkqxylgJ/exec'; 
 
 // [CACHE] Variabel
 let siswaCache = null;
@@ -189,31 +189,52 @@ document.addEventListener('DOMContentLoaded', initializeForm);
 nilaiBacaanSelect.addEventListener('change', generateCatatanOtomatis);
 nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
 
-kelasSelect.addEventListener('change', (e) => {
+// GANTI KESELURUHAN FUNGSI INI
+kelasSelect.addEventListener('change', async (e) => {
     const selectedKelas = e.target.value;
+    
+    // Reset semua field terlebih dahulu
     resetPencapaianFields();
-    // Reset pilihan siswa dan nonaktifkan
-    siswaSelect.innerHTML = `<option value="">Pilih siswa...</option>`;
+    overallStatusInfo.classList.add('hidden');
+    siswaSelect.innerHTML = `<option value="">Memuat siswa...</option>`;
     siswaSelect.disabled = true;
-
 
     if (!selectedKelas || !siswaCache) {
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
-        siswaSelect.disabled = true;
         return;
     }
     
+    // Ambil status setoran harian dari server
+    const dailyStatuses = await fetchData('getDailyStatuses');
     const siswaDiKelas = siswaCache.filter(siswa => siswa.kelas.toString() === selectedKelas);
     
+    // Kosongkan lagi sebelum diisi
+    siswaSelect.innerHTML = `<option value="" disabled selected>Pilih siswa...</option>`;
+
     if (siswaDiKelas.length > 0) {
-        populateSelect(siswaSelect, siswaDiKelas, 'id', 'nama');
+        siswaDiKelas.forEach(siswa => {
+            const option = document.createElement('option');
+            option.value = siswa.id;
+            
+            let studentName = siswa.nama;
+            const status = dailyStatuses ? dailyStatuses[siswa.id] : null;
+
+            // Tambahkan ikon berdasarkan status
+            if (status === 'complete') {
+                studentName += ' ✅';
+            } else if (status === 'partial') {
+                studentName += ' 🟨';
+            }
+
+            option.textContent = studentName;
+            siswaSelect.appendChild(option);
+        });
         siswaSelect.disabled = false;
     } else {
         siswaSelect.innerHTML = `<option value="">Tidak ada siswa di kelas ini</option>`;
         siswaSelect.disabled = true;
     }
 });
-
 // GANTI KESELURUHAN FUNGSI INI DENGAN VERSI FINAL
 // GANTI KESELURUHAN FUNGSI INI DENGAN VERSI FINAL YANG LEBIH TEGAS
 siswaSelect.addEventListener('change', async (e) => {
