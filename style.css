@@ -150,12 +150,12 @@ select[disabled] {
 
 /* --- Info Box (Setoran Terakhir) --- */
 .info-box {
-    padding: 10px 15px;
-    margin-top: 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
+  padding: 10px 15px;
+  margin-bottom: 20px; /* Ditambahkan agar ada jarak ke bawah */
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
 }
 
 .info-box.loading {
