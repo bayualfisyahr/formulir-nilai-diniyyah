@@ -25,6 +25,7 @@ const hafalanAyatInput = document.getElementById('hafalanAyatInput');
 const catatanTextarea = document.getElementById('catatanTextarea');
 const lastBacaanInfo = document.getElementById('last-bacaan-info');
 const lastHafalanInfo = document.getElementById('last-hafalan-info');
+const overallStatusInfo = document.getElementById('overall-status-info');
 const submitButton = document.getElementById('submitButton');
 const buttonText = document.querySelector('.button-text');
 const submitLoader = document.getElementById('submitLoader');
@@ -218,37 +219,46 @@ siswaSelect.addEventListener('change', async (e) => {
     if (!studentId) return;
 
     resetPencapaianFields();
-    
-    lastBacaanInfo.textContent = 'Memuat data bacaan terakhir...';
-    lastHafalanInfo.textContent = 'Memuat data hafalan terakhir...';
-    lastBacaanInfo.className = 'info-box loading';
-    lastHafalanInfo.className = 'info-box loading';
-    lastBacaanInfo.classList.remove('hidden');
-    lastHafalanInfo.classList.remove('hidden');
-    
+
+    // 1. Tampilkan status loading ringkasan
+    overallStatusInfo.textContent = 'Memuat data terakhir...';
+    overallStatusInfo.className = 'info-box loading';
+    overallStatusInfo.classList.remove('hidden');
+
+    // Sembunyikan box detail terlebih dahulu
+    lastBacaanInfo.classList.add('hidden');
+    lastHafalanInfo.classList.add('hidden');
+
+    // 2. Ambil data dari server
     const lastDeposits = await fetchData('getLastDeposits', { studentId: studentId });
-    
+
+    // 3. Update status ringkasan berdasarkan hasil
+    if (lastDeposits && (lastDeposits.lastBacaan || lastDeposits.lastHafalan)) {
+        overallStatusInfo.textContent = 'Data terakhir ditemukan!';
+        overallStatusInfo.className = 'info-box success';
+    } else {
+        overallStatusInfo.textContent = 'Data terakhir tidak ditemukan!';
+        overallStatusInfo.className = 'info-box warning';
+    }
+
+    // 4. Tampilkan dan isi info detail di dalam setiap fieldset
     if (lastDeposits && lastDeposits.lastBacaan) {
         const record = lastDeposits.lastBacaan;
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-        lastBacaanInfo.textContent = `Bacaan terakhir (${tgl}): ${record.Jenjang_Bacaan} ${record.Detail_Bacaan || ''} baris ${record.Sub_Detail || ''}`;
+        lastBacaanInfo.textContent = `Terakhir (${tgl}): ${record.Jenjang_Bacaan} ${record.Detail_Bacaan || ''} baris ${record.Sub_Detail || ''}`;
         lastBacaanInfo.className = 'info-box success';
-    } else {
-        lastBacaanInfo.textContent = 'Tidak ada data setoran bacaan terakhir.';
-        lastBacaanInfo.className = 'info-box warning';
+        lastBacaanInfo.classList.remove('hidden');
     }
 
     if (lastDeposits && lastDeposits.lastHafalan) {
         const record = lastDeposits.lastHafalan;
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-        lastHafalanInfo.textContent = `Hafalan terakhir (${tgl}): QS. ${record.Surat_Hafalan} ayat ${record.Ayat_Hafalan || ''}`;
+        lastHafalanInfo.textContent = `Terakhir (${tgl}): QS. ${record.Surat_Hafalan} ayat ${record.Ayat_Hafalan || ''}`;
         lastHafalanInfo.className = 'info-box success';
-    } else {
-        lastHafalanInfo.textContent = 'Tidak ada data setoran hafalan terakhir.';
-        lastHafalanInfo.className = 'info-box warning';
+        lastHafalanInfo.classList.remove('hidden');
     }
-    
-    // Prefill form dengan data terakhir yang paling relevan (misalnya bacaan)
+
+    // 5. Prefill form dengan data terakhir
     if (lastDeposits && lastDeposits.lastBacaan) {
         prefillForm(lastDeposits.lastBacaan);
     } else if (lastDeposits && lastDeposits.lastHafalan) {
