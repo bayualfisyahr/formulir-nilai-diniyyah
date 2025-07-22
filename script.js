@@ -1,9 +1,9 @@
 // =================================================================================
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
-// Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
+// Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKbLR0BNqvCRJiHDF-l62opuMLlaMOjrNPHMHs18KCS2kVCINFmWFDuNpIq0dAL-1x/exec'; 
-
+// =================================================================================
 
 // [CACHE] Variabel
 let siswaCache = null;
@@ -24,13 +24,12 @@ const nilaiHafalanSelect = document.getElementById('nilaiHafalanSelect');
 const hafalanSuratSelect = document.getElementById('hafalanSuratSelect');
 const hafalanAyatInput = document.getElementById('hafalanAyatInput');
 const catatanTextarea = document.getElementById('catatanTextarea');
-const lastDepositInfo = document.getElementById('last-deposit-info');
+const lastBacaanInfo = document.getElementById('last-bacaan-info');
+const lastHafalanInfo = document.getElementById('last-hafalan-info');
 const submitButton = document.getElementById('submitButton');
 const buttonText = document.querySelector('.button-text');
 const submitLoader = document.getElementById('submitLoader');
 const statusMessage = document.getElementById('statusMessage');
-const lastBacaanInfo = document.getElementById('last-bacaan-info');
-const lastHafalanInfo = document.getElementById('last-hafalan-info');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
@@ -75,23 +74,23 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
     });
 }
 
+/**
+ * [DIPERBARUI] Membuat catatan otomatis yang lebih cerdas.
+ */
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
     let finalNote = '';
 
     if (nilaiBacaan && nilaiHafalan) {
-        // Kasus 1: Keduanya diisi
         const kode = `${nilaiBacaan}-${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
         if (catatanObj) finalNote = catatanObj.deskripsi;
     } else if (nilaiBacaan) {
-        // Kasus 2: Hanya bacaan diisi
         const kode = `BACAAN_${nilaiBacaan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
         if (catatanObj) finalNote = catatanObj.deskripsi;
     } else if (nilaiHafalan) {
-        // Kasus 3: Hanya hafalan diisi
         const kode = `HAFALAN_${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
         if (catatanObj) finalNote = catatanObj.deskripsi;
@@ -108,8 +107,8 @@ function resetPencapaianFields() {
     hafalanAyatInput.value = '';
     nilaiHafalanSelect.value = '';
     catatanTextarea.value = '';
-    lastDepositInfo.classList.add('hidden');
-    lastDepositInfo.textContent = '';
+    lastBacaanInfo.classList.add('hidden');
+    lastHafalanInfo.classList.add('hidden');
 }
 
 function updateDynamicBacaanFields(jenjang, record = null) {
@@ -128,39 +127,28 @@ function updateDynamicBacaanFields(jenjang, record = null) {
     }
 }
 
-function prefillForm(record) {
-    resetPencapaianFields();
-    if (record.Timestamp) {
-        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        lastDepositInfo.textContent = `Setoran terakhir pada: ${tgl}`;
-        lastDepositInfo.className = 'info-box success'; 
-    }
-    updateDynamicBacaanFields(record.Jenjang_Bacaan, record);
-    jenjangSelect.value = record.Jenjang_Bacaan || '';
-    nilaiBacaanSelect.value = record.Nilai_Bacaan || '';
-    hafalanSuratSelect.value = record.Surat_Hafalan || '';
-    hafalanAyatInput.value = record.Ayat_Hafalan || '';
-    nilaiHafalanSelect.value = record.Nilai_Hafalan || '';
-    generateCatatanOtomatis();
-}
-
+/**
+ * [DIPERBARUI] Inisialisasi dengan panggilan data tunggal yang efisien.
+ */
 async function initializeForm() {
-    const [hafalanData, bacaanData, siswaData, dataCatatan] = await Promise.all([
-        fetchData('hafalanSurat'),
-        fetchData('bacaanSurat'),
-        fetchData('allSiswa'),
-        fetchData('refCatatan')
-    ]);
+    const initialData = await fetchData('getInitialData');
 
-    if (hafalanData) { hafalanSuratCache = hafalanData; populateSelect(hafalanSuratSelect, hafalanSuratCache); }
-    if (bacaanData) bacaanSuratCache = bacaanData;
-    if (siswaData) siswaCache = siswaData;
-    if (dataCatatan) catatanCache = dataCatatan;
+    if (initialData) {
+        hafalanSuratCache = initialData.hafalanSurat;
+        bacaanSuratCache = initialData.bacaanSurat;
+        siswaCache = initialData.allSiswa;
+        catatanCache = initialData.refCatatan;
 
-    if (siswaCache) {
+        if (hafalanSuratCache) populateSelect(hafalanSuratSelect, hafalanSuratCache);
+        
+        // [PERBAIKAN KUNCI] Aktifkan dropdown kelas setelah semua cache siap
+        kelasSelect.innerHTML = `<option value="" disabled selected>Pilih Kelas...</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>`;
         kelasSelect.disabled = false;
+        console.log('Semua cache berhasil dimuat.');
+    } else {
+        kelasSelect.innerHTML = `<option value="">Gagal memuat data</option>`;
     }
-
+    
     splashScreen.style.opacity = '0';
     setTimeout(() => {
         splashScreen.style.display = 'none';
@@ -189,7 +177,6 @@ siswaSelect.addEventListener('change', async (e) => {
 
     resetPencapaianFields();
     
-    // Tampilkan pesan loading di kedua box
     lastBacaanInfo.textContent = 'Memuat data bacaan terakhir...';
     lastHafalanInfo.textContent = 'Memuat data hafalan terakhir...';
     lastBacaanInfo.className = 'info-box loading';
@@ -197,10 +184,8 @@ siswaSelect.addEventListener('change', async (e) => {
     lastBacaanInfo.classList.remove('hidden');
     lastHafalanInfo.classList.remove('hidden');
     
-    // Panggil fungsi optimasi yang baru
     const lastDeposits = await fetchData('getLastDeposits', { studentId: studentId });
     
-    // Proses data bacaan
     if (lastDeposits && lastDeposits.lastBacaan) {
         const record = lastDeposits.lastBacaan;
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
@@ -211,7 +196,6 @@ siswaSelect.addEventListener('change', async (e) => {
         lastBacaanInfo.className = 'info-box warning';
     }
 
-    // Proses data hafalan
     if (lastDeposits && lastDeposits.lastHafalan) {
         const record = lastDeposits.lastHafalan;
         const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
@@ -222,7 +206,6 @@ siswaSelect.addEventListener('change', async (e) => {
         lastHafalanInfo.className = 'info-box warning';
     }
 });
-
 
 jenjangSelect.addEventListener('change', (e) => {
     updateDynamicBacaanFields(e.target.value);
@@ -256,7 +239,8 @@ form.addEventListener('submit', async (e) => {
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
         catatanTextarea.value = '';
-        lastDepositInfo.classList.add('hidden');
+        lastBacaanInfo.classList.add('hidden');
+        lastHafalanInfo.classList.add('hidden');
     } catch (error) {
         console.error('Submit error:', error);
         statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
