@@ -3,7 +3,6 @@
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRc9JzxTfSYOuAfKFTljSxcXqwtJV07T5tcwRamQj-X2wehhY6PnRDgLs1B9yHJdts/exec'; 
-// =================================================================================
 
 // [CACHE] Variabel
 let siswaCache = null;
