@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyz2NEjY83w3Uks3n_uMuSqaVSZq-thHKor3zdsns1n67lhlTt1lzGItmEXYP3N1fjE/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL9UwEVAEGsyS-oatXpFzACORPUe9ptk3kMmeX_jl5-8_C7MfCHeUfFmNRCx7BsC75/exec'; 
 
 // [CACHE] Variabel
 let siswaCache = null;
@@ -301,7 +301,6 @@ form.addEventListener('submit', async (e) => {
     const selectedSiswaOption = siswaSelect.options[siswaSelect.selectedIndex];
     data.idSiswa = selectedSiswaOption.value;
     
-    // [FIX] Membersihkan nama siswa dari ikon sebelum dikirim
     data.namaSiswa = selectedSiswaOption.text.replace(/ [✅🟡✔️⭐📝✏️➖▫️⏳☑️🌟🏆👍✨🎉🟢🔵📚🎓❤️🧡💛💚💙💜👋👈👉➡️⬅️⬆️⬇️↗️↘️↙️↖️↔️↕️ℹ️❓❔❕➕➗🟰©️®️™️☀️🌙☁️⚡🔥💧❄️🌀🌈🌊🔗⚙️💡🔑🔒🔓📖📕📗📘📙📜📄🎒❤️🧡💛💚💙💜👍👎🙂😊🤔😐😶🧐😎😁😅😇❤️🧡💛💚💙💜👍👎👋👈👉]/g, '').trim();
 
     try {
@@ -317,13 +316,15 @@ form.addEventListener('submit', async (e) => {
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
         
+        // [INI BAGIAN PENTINGNYA] Memperbarui cache status ikon setelah submit berhasil
+        dailyStatusCache = await fetchData('getDailyStatuses');
+
         form.reset();
-        kelasSelect.value = ''; // Reset pilihan kelas
+        kelasSelect.value = '';
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
         
-        // [FIX] Sembunyikan semua info box setelah submit berhasil
         overallStatusInfo.style.display = 'none';
         lastBacaanInfo.style.display = 'none';
         lastHafalanInfo.style.display = 'none';
