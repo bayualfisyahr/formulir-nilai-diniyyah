@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script yang baru Anda deploy
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUAbNIM7i2BbUUz0kMgXzmvmu4NDTzXnpln18GOCocK5CFVN7OkID-Mc6nQhOrayFB/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKbLR0BNqvCRJiHDF-l62opuMLlaMOjrNPHMHs18KCS2kVCINFmWFDuNpIq0dAL-1x/exec'; 
 
 
 // [CACHE] Variabel
@@ -29,6 +29,8 @@ const submitButton = document.getElementById('submitButton');
 const buttonText = document.querySelector('.button-text');
 const submitLoader = document.getElementById('submitLoader');
 const statusMessage = document.getElementById('statusMessage');
+const lastBacaanInfo = document.getElementById('last-bacaan-info');
+const lastHafalanInfo = document.getElementById('last-hafalan-info');
 
 // ==================== FUNGSI-FUNGSI UTAMA ====================
 
@@ -76,15 +78,26 @@ function populateSelect(selectElement, data, valueKey = null, textKey = null) {
 function generateCatatanOtomatis() {
     const nilaiBacaan = nilaiBacaanSelect.value;
     const nilaiHafalan = nilaiHafalanSelect.value;
-    if (nilaiBacaan && nilaiHafalan && catatanCache) {
+    let finalNote = '';
+
+    if (nilaiBacaan && nilaiHafalan) {
+        // Kasus 1: Keduanya diisi
         const kode = `${nilaiBacaan}-${nilaiHafalan}`;
         const catatanObj = catatanCache.find(item => item.kode === kode);
-        if (catatanObj) {
-            catatanTextarea.value = catatanObj.deskripsi;
-        }
-    } else {
-        catatanTextarea.value = '';
+        if (catatanObj) finalNote = catatanObj.deskripsi;
+    } else if (nilaiBacaan) {
+        // Kasus 2: Hanya bacaan diisi
+        const kode = `BACAAN_${nilaiBacaan}`;
+        const catatanObj = catatanCache.find(item => item.kode === kode);
+        if (catatanObj) finalNote = catatanObj.deskripsi;
+    } else if (nilaiHafalan) {
+        // Kasus 3: Hanya hafalan diisi
+        const kode = `HAFALAN_${nilaiHafalan}`;
+        const catatanObj = catatanCache.find(item => item.kode === kode);
+        if (catatanObj) finalNote = catatanObj.deskripsi;
     }
+    
+    catatanTextarea.value = finalNote;
 }
 
 function resetPencapaianFields() {
@@ -173,18 +186,43 @@ kelasSelect.addEventListener('change', (e) => {
 siswaSelect.addEventListener('change', async (e) => {
     const studentId = e.target.value;
     if (!studentId) return;
+
     resetPencapaianFields();
-    lastDepositInfo.textContent = 'Memuat data terakhir...';
-    lastDepositInfo.className = 'info-box loading';
-    lastDepositInfo.classList.remove('hidden');
-    const lastRecord = await fetchData('getLastRecord', { studentId: studentId });
-    if (lastRecord) {
-        prefillForm(lastRecord);
+    
+    // Tampilkan pesan loading di kedua box
+    lastBacaanInfo.textContent = 'Memuat data bacaan terakhir...';
+    lastHafalanInfo.textContent = 'Memuat data hafalan terakhir...';
+    lastBacaanInfo.className = 'info-box loading';
+    lastHafalanInfo.className = 'info-box loading';
+    lastBacaanInfo.classList.remove('hidden');
+    lastHafalanInfo.classList.remove('hidden');
+    
+    // Panggil fungsi optimasi yang baru
+    const lastDeposits = await fetchData('getLastDeposits', { studentId: studentId });
+    
+    // Proses data bacaan
+    if (lastDeposits && lastDeposits.lastBacaan) {
+        const record = lastDeposits.lastBacaan;
+        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+        lastBacaanInfo.textContent = `Bacaan terakhir (${tgl}): ${record.Jenjang_Bacaan} ${record.Detail_Bacaan || ''} baris ${record.Sub_Detail || ''}`;
+        lastBacaanInfo.className = 'info-box success';
     } else {
-        lastDepositInfo.textContent = 'Tidak ada data setoran terakhir.';
-        lastDepositInfo.className = 'info-box warning';
+        lastBacaanInfo.textContent = 'Tidak ada data setoran bacaan terakhir.';
+        lastBacaanInfo.className = 'info-box warning';
+    }
+
+    // Proses data hafalan
+    if (lastDeposits && lastDeposits.lastHafalan) {
+        const record = lastDeposits.lastHafalan;
+        const tgl = new Date(record.Timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+        lastHafalanInfo.textContent = `Hafalan terakhir (${tgl}): QS. ${record.Surat_Hafalan} ayat ${record.Ayat_Hafalan || ''}`;
+        lastHafalanInfo.className = 'info-box success';
+    } else {
+        lastHafalanInfo.textContent = 'Tidak ada data setoran hafalan terakhir.';
+        lastHafalanInfo.className = 'info-box warning';
     }
 });
+
 
 jenjangSelect.addEventListener('change', (e) => {
     updateDynamicBacaanFields(e.target.value);
