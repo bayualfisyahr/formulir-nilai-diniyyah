@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw45BtJPW_QQw9J8cxX8f3Hj0S9MZ6wGuDFT_WnIfnGcc-trK9KVXsWcfziRtiiHz0u/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6zEK11EX4hpvkL2hTlFRiW96UVkMM9Hw6Ob0nEipAO7_GXJzFEyyvsf64oMHWhFpQ/exec'; 
 
 // [CACHE] Variabel
 let siswaCache = null;
@@ -191,6 +191,10 @@ nilaiHafalanSelect.addEventListener('change', generateCatatanOtomatis);
 kelasSelect.addEventListener('change', (e) => {
     const selectedKelas = e.target.value;
     resetPencapaianFields();
+    // Reset pilihan siswa dan nonaktifkan
+    siswaSelect.innerHTML = `<option value="">Pilih siswa...</option>`;
+    siswaSelect.disabled = true;
+
 
     if (!selectedKelas || !siswaCache) {
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
@@ -280,12 +284,15 @@ form.addEventListener('submit', async (e) => {
         statusMessage.textContent = result.message || 'Laporan berhasil dikirim!';
         statusMessage.className = 'status-success';
         form.reset();
+        // Reset dropdown ke kondisi awal setelah submit berhasil
+        kelasSelect.value = '';
         siswaSelect.innerHTML = `<option value="">Pilih kelas terlebih dahulu...</option>`;
         siswaSelect.disabled = true;
         dynamicBacaanFields.innerHTML = '';
         catatanTextarea.value = '';
         lastBacaanInfo.classList.add('hidden');
         lastHafalanInfo.classList.add('hidden');
+
     } catch (error) {
         console.error('Submit error:', error);
         statusMessage.textContent = `Gagal mengirim laporan: ${error.message}`;
