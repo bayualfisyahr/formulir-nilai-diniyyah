@@ -2,7 +2,7 @@
 // KONFIGURASI PENTING - HARAP DIISI
 // =================================================================================
 // Ganti dengan URL Web App BARU dari Google Apps Script Anda yang terakhir
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEe0ziJrx-QPFPlFs85N-hKuQze5JvVdjZ_PAvAfp5hREbT2P35bjAc9v26L7wMqyn/exec'; 
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCK88ZruVy4_EG_Jnn1I1Ie4wNFy28MVTAto1MXF_iaNdUS2t49-UrdvdN5zgUirzY/exec'; 
 
 // [CACHE] Variabel
 let siswaCache = null;
@@ -162,9 +162,15 @@ async function initializeForm() {
 
         if (hafalanSuratCache) populateSelect(hafalanSuratSelect, hafalanSuratCache);
         
-        // Aktifkan dropdown kelas dengan opsi yang benar
-        kelasSelect.innerHTML = `<option value="" disabled selected>Pilih Kelas...</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>`;
-        kelasSelect.disabled = false;
+        // --- PERUBAHAN UTAMA DI SINI ---
+        // Mengisi dropdown kelas secara dinamis dari data yang diterima
+        if (initialData.uniqueClasses && initialData.uniqueClasses.length > 0) {
+            populateSelect(kelasSelect, initialData.uniqueClasses);
+            kelasSelect.disabled = false;
+        } else {
+            kelasSelect.innerHTML = `<option value="">Kelas tidak ditemukan</option>`;
+        }
+        
         console.log('Semua cache berhasil dimuat.');
     } else {
         // Jika data gagal dimuat, berikan pesan error yang jelas
