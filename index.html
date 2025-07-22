@@ -29,105 +29,223 @@
             </header>
             <main>
                 <form id="formInputNilai">
-                    <!-- Data Siswa -->
-                    <fieldset>
-                        <legend>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            Data Siswa
-                        </legend>
-                        <div class="form-group">
-                            <label for="kelasSelect">Kelas</label>
-                            <select id="kelasSelect" name="kelas" required disabled>
-                                <option value="" disabled selected>Memuat data...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="siswaSelect">Nama Siswa</label>
-                            <select id="siswaSelect" name="siswa" required disabled>
-                                <option value="" selected>Pilih kelas terlebih dahulu...</option>
-                            </select>
-                        </div>
-                        <!-- Info Setoran Terakhir -->
-                        <div id="last-bacaan-info" class="info-box hidden"></div>
-                        <div id="last-hafalan-info" class="info-box hidden"></div>
-                    </fieldset>
+  <fieldset>
+    <legend>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+        <circle
+          cx="12"
+          cy="7"
+          r="4"></circle>
+      </svg>
+      Data Siswa
+    </legend>
+    <div class="form-group">
+      <label for="kelasSelect">Kelas</label>
+      <select
+        id="kelasSelect"
+        name="kelas"
+        required
+        disabled>
+        <option
+          value=""
+          disabled
+          selected>
+          Memuat data...
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="siswaSelect">Nama Siswa</label>
+      <select
+        id="siswaSelect"
+        name="siswa"
+        required
+        disabled>
+        <option
+          value=""
+          selected>
+          Pilih kelas terlebih dahulu...
+        </option>
+      </select>
+    </div>
+    <div
+      id="overall-status-info"
+      class="info-box hidden"></div>
+  </fieldset>
 
-                    <!-- Penilaian Bacaan -->
-                    <fieldset>
-                        <legend>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                            Penilaian Bacaan
-                        </legend>
-                        <div class="form-group">
-                            <label for="jenjangSelect">Jenjang Bacaan</label>
-                            <select id="jenjangSelect" name="jenjangBacaan">
-                                <option value="" disabled selected>Pilih Jenjang...</option>
-                                <option value="Al Qur'an">Al Qur'an</option>
-                                <option value="Iqro 6">Iqro 6</option>
-                                <option value="Iqro 5">Iqro 5</option>
-                                <option value="Iqro 4">Iqro 4</option>
-                                <option value="Iqro 3">Iqro 3</option>
-                                <option value="Iqro 2">Iqro 2</option>
-                                <option value="Iqro 1">Iqro 1</option>
-                            </select>
-                        </div>
-                        <div id="dynamicBacaanFields"></div>
-                        <div class="form-group">
-                            <label for="nilaiBacaanSelect">Nilai Bacaan</label>
-                            <select id="nilaiBacaanSelect" name="nilaiBacaan">
-                                <option value="" disabled selected>Pilih Nilai...</option>
-                                <option value="A">A (Lanjut)</option>
-                                <option value="B">B (Lancarkan Lagi)</option>
-                                <option value="C">C (Ulang)</option>
-                            </select>
-                        </div>
-                    </fieldset>
+  <fieldset>
+    <legend>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      Penilaian Bacaan
+    </legend>
+    <div
+      id="last-bacaan-info"
+      class="info-box hidden"></div>
+    <div class="form-group">
+      <label for="jenjangSelect">Jenjang Bacaan</label>
+      <select
+        id="jenjangSelect"
+        name="jenjangBacaan">
+        <option
+          value=""
+          disabled
+          selected>
+          Pilih Jenjang...
+        </option>
+        <option value="Al Qur'an">Al Qur'an</option>
+        <option value="Iqro 6">Iqro 6</option>
+        <option value="Iqro 5">Iqro 5</option>
+        <option value="Iqro 4">Iqro 4</option>
+        <option value="Iqro 3">Iqro 3</option>
+        <option value="Iqro 2">Iqro 2</option>
+        <option value="Iqro 1">Iqro 1</option>
+      </select>
+    </div>
+    <div id="dynamicBacaanFields"></div>
+    <div class="form-group">
+      <label for="nilaiBacaanSelect">Nilai Bacaan</label>
+      <select
+        id="nilaiBacaanSelect"
+        name="nilaiBacaan">
+        <option
+          value=""
+          disabled
+          selected>
+          Pilih Nilai...
+        </option>
+        <option value="A">A (Lanjut)</option>
+        <option value="B">B (Lancarkan Lagi)</option>
+        <option value="C">C (Ulang)</option>
+      </select>
+    </div>
+  </fieldset>
 
-                    <!-- Penilaian Hafalan -->
-                    <fieldset>
-                        <legend>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                            Penilaian Hafalan
-                        </legend>
-                        <div class="form-group">
-                            <label for="hafalanSuratSelect">Surat Hafalan</label>
-                            <select id="hafalanSuratSelect" name="suratHafalan">
-                                <option value="" disabled selected>Memuat surat...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="hafalanAyatInput">Ayat</label>
-                            <input type="text" inputmode="numeric" pattern="[0-9\\-]+" title="Hanya angka dan tanda hubung (-)" id="hafalanAyatInput" name="ayatHafalan" placeholder="Contoh: 1-7">
-                        </div>
-                        <div class="form-group">
-                            <label for="nilaiHafalanSelect">Nilai Hafalan</label>
-                            <select id="nilaiHafalanSelect" name="nilaiHafalan">
-                                <option value="" disabled selected>Pilih Nilai...</option>
-                                <option value="A">A (Lanjut)</option>
-                                <option value="B">B (Lancarkan Lagi)</option>
-                                <option value="C">C (Ulang)</option>
-                            </select>
-                        </div>
-                    </fieldset>
+  <fieldset>
+    <legend>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      Penilaian Hafalan
+    </legend>
+    <div
+      id="last-hafalan-info"
+      class="info-box hidden"></div>
+    <div class="form-group">
+      <label for="hafalanSuratSelect">Surat Hafalan</label>
+      <select
+        id="hafalanSuratSelect"
+        name="suratHafalan">
+        <option
+          value=""
+          disabled
+          selected>
+          Memuat surat...
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="hafalanAyatInput">Ayat</label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9\\-]+"
+        title="Hanya angka dan tanda hubung (-)"
+        id="hafalanAyatInput"
+        name="ayatHafalan"
+        placeholder="Contoh: 1-7" />
+    </div>
+    <div class="form-group">
+      <label for="nilaiHafalanSelect">Nilai Hafalan</label>
+      <select
+        id="nilaiHafalanSelect"
+        name="nilaiHafalan">
+        <option
+          value=""
+          disabled
+          selected>
+          Pilih Nilai...
+        </option>
+        <option value="A">A (Lanjut)</option>
+        <option value="B">B (Lancarkan Lagi)</option>
+        <option value="C">C (Ulang)</option>
+      </select>
+    </div>
+  </fieldset>
 
-                    <!-- Catatan Guru -->
-                    <fieldset>
-                        <legend>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                            Catatan Guru
-                        </legend>
-                        <div class="form-group">
-                            <label for="catatanTextarea">Keterangan</label>
-                            <textarea id="catatanTextarea" name="catatanFinal" rows="6" placeholder="Catatan otomatis akan muncul di sini..."></textarea>
-                        </div>
-                    </fieldset>
+  <fieldset>
+    <legend>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon">
+        <path d="M12 20h9"></path>
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+      Catatan Guru
+    </legend>
+    <div class="form-group">
+      <label for="catatanTextarea">Keterangan</label>
+      <textarea
+        id="catatanTextarea"
+        name="catatanFinal"
+        rows="6"
+        placeholder="Catatan otomatis akan muncul di sini..."></textarea>
+    </div>
+  </fieldset>
 
-                    <button type="submit" id="submitButton">
-                        <span class="button-text">Kirim Laporan</span>
-                        <div id="submitLoader" class="loader-small" style="display: none;"></div>
-                    </button>
-                    <div id="statusMessage"></div>
-                </form>
+  <button
+    type="submit"
+    id="submitButton">
+    <span class="button-text">Kirim Laporan</span>
+    <div
+      id="submitLoader"
+      class="loader-small"
+      style="display: none"></div>
+  </button>
+  <div id="statusMessage"></div>
+</form>
             </main>
         </div>
     </div>
