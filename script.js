@@ -148,6 +148,7 @@ function prefillForm(record) {
 }
 
 
+// GANTI FUNGSI INI DENGAN VERSI FINAL YANG SUDAH LENGKAP
 async function initializeForm() {
     const initialData = await fetchData('getInitialData');
 
@@ -158,10 +159,11 @@ async function initializeForm() {
     }, 500);
 
     if (initialData && initialData.allSiswa && initialData.allSiswa.length > 0) {
-        // ... (cache lainnya sama)
+        hafalanSuratCache = initialData.hafalanSurat;
+        bacaanSuratCache = initialData.bacaanSurat;
         siswaCache = initialData.allSiswa;
         catatanCache = initialData.refCatatan;
-        dailyStatusCache = initialData.dailyStatuses; // [OPTIMISASI] Simpan status ke cache
+        dailyStatusCache = initialData.dailyStatuses;
 
         if (hafalanSuratCache) populateSelect(hafalanSuratSelect, hafalanSuratCache);
         
